@@ -1,0 +1,149 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/jetbrains-mono';
+
+/*
+ * VOID design tokens. Components use these semantic names only
+ * (bg-surface, text-muted, border-line, ...), never raw hex values.
+ */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --color-canvas: #08080b;
+  --color-surface: #0f0f14;
+  --color-raised: #15151c;
+  --color-overlay: #1b1b24;
+  --color-line: #22222c;
+  --color-line-strong: #30303c;
+
+  --color-fg: #ececf1;
+  --color-muted: #a1a1b0;
+  --color-subtle: #6e6e7e;
+
+  --color-accent-50: #f1efff;
+  --color-accent-200: #cdc6ff;
+  --color-accent-300: #b0a6fb;
+  --color-accent-400: #9a8cf7;
+  --color-accent-500: #8576f0;
+  --color-accent-600: #6c5ce0;
+  --color-accent-900: #241e47;
+
+  --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+  --color-danger-strong: #dc4c4c;
+
+  --radius-card: 0.875rem;
+
+  --animate-fade-in: fade-in 160ms ease-out both;
+  --animate-pop-in: pop-in 180ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-slide-in: slide-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-rise: rise 260ms ease-out both;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes slide-in {
+    from { transform: translateX(-100%); }
+    to { transform: none; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: none; }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-canvas);
+  }
+  body {
+    @apply bg-canvas font-sans text-fg antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+  }
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-accent-500) 40%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent-400);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      transition-duration: 1ms !important;
+    }
+  }
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+
+/*
+ * Syntax highlighting (highlight.js token classes, rendered by <CodeBlock>).
+ * Muted, cool colours that sit on the dark canvas without shouting.
+ */
+@layer components {
+  .hljs-code {
+    --code-keyword: #b4a7ff;
+    --code-string: #9fdba9;
+    --code-number: #f5b97a;
+    --code-comment: #6e6e7e;
+    --code-title: #7cc7f5;
+    --code-type: #f0c674;
+    --code-attr: #e8a3c9;
+    --code-meta: #8fb8c9;
+    --code-plain: #d4d4de;
+    color: var(--code-plain);
+  }
+  .hljs-code .hljs-comment,
+  .hljs-code .hljs-quote,
+  .hljs-code .hljs-doctag { color: var(--code-comment); font-style: italic; }
+  .hljs-code .hljs-keyword,
+  .hljs-code .hljs-selector-tag,
+  .hljs-code .hljs-literal,
+  .hljs-code .hljs-section,
+  .hljs-code .hljs-link { color: var(--code-keyword); }
+  .hljs-code .hljs-string,
+  .hljs-code .hljs-regexp,
+  .hljs-code .hljs-addition,
+  .hljs-code .hljs-char { color: var(--code-string); }
+  .hljs-code .hljs-number,
+  .hljs-code .hljs-symbol,
+  .hljs-code .hljs-bullet { color: var(--code-number); }
+  .hljs-code .hljs-title,
+  .hljs-code .hljs-name,
+  .hljs-code .hljs-selector-id,
+  .hljs-code .hljs-selector-class { color: var(--code-title); }
+  .hljs-code .hljs-type,
+  .hljs-code .hljs-built_in,
+  .hljs-code .hljs-title.class_,
+  .hljs-code .hljs-class .hljs-title { color: var(--code-type); }
+  .hljs-code .hljs-attr,
+  .hljs-code .hljs-attribute,
+  .hljs-code .hljs-property,
+  .hljs-code .hljs-variable,
+  .hljs-code .hljs-template-variable,
+  .hljs-code .hljs-selector-attr,
+  .hljs-code .hljs-selector-pseudo { color: var(--code-attr); }
+  .hljs-code .hljs-meta,
+  .hljs-code .hljs-tag,
+  .hljs-code .hljs-subst,
+  .hljs-code .hljs-params { color: var(--code-meta); }
+  .hljs-code .hljs-deletion { color: var(--color-danger); }
+  .hljs-code .hljs-punctuation,
+  .hljs-code .hljs-operator { color: var(--color-muted); }
+  .hljs-code .hljs-emphasis { font-style: italic; }
+  .hljs-code .hljs-strong { font-weight: 600; }
+}

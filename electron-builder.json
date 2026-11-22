@@ -1,0 +1,38 @@
+{
+  "appId": "app.void.workspace",
+  "productName": "VOID",
+  "files": [
+    "dist/**",
+    "electron/**",
+    "package.json",
+    "!node_modules/**"
+  ],
+  "extraMetadata": {
+    "main": "electron/main.cjs"
+  },
+  "directories": {
+    "output": "release",
+    "buildResources": "build"
+  },
+  "win": {
+    "target": [
+      {
+        "target": "portable",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "icon": "build/icon.ico",
+    "signAndEditExecutable": true
+  },
+  "portable": {
+    "artifactName": "VOID-${version}-portable.exe",
+    "splashImage": "build/splash.bmp"
+  },
+  "compression": "store",
+  "electronLanguages": [
+    "en-US",
+    "de"
+  ]
+}

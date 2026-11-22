@@ -1,0 +1,21 @@
+# dependencies
+node_modules
+
+# build output
+dist
+release
+VOID-App
+*.exe
+*.tsbuildinfo
+coverage
+
+# local / secrets
+.env
+.env.*
+*.local
+*.log
+.claude
+
+# OS
+.DS_Store
+Thumbs.db
