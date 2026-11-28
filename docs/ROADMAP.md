@@ -50,6 +50,12 @@
 - Fenstergröße/-position merken, Seiten starten oben, Code Tester und Statistik laden im Hintergrund vor
 - Einheitliche Schalter in den Einstellungen, VOID-Version in *Settings → Storage*, robustere verschachtelte Dialoge
 
+## Update 4.4 ✅ (PC Optimizer)
+
+- PC Optimizer, phases A–C: read-only quick scan and deep scan, preview with live totals, validation, confirmation and a dry run only (see [PC-OPTIMIZER-A-C.md](PC-OPTIMIZER-A-C.md))
+- Deep scan: performance hogs with step-by-step fixes, top CPU/GPU/RAM/network users, one-click open for folders and Windows settings
+- Optimizer UI in English
+
 ## Später
 
 - Befehlspalette (Aktionen zusätzlich zur Suche)

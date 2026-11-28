@@ -35,6 +35,8 @@ const loadCodeTester = () => import('../features/codetester/CodeTesterPage');
 const loadStatistics = () => import('../features/statistics/StatisticsPage');
 const CodeTesterPage = lazy(loadCodeTester);
 const StatisticsPage = lazy(loadStatistics);
+// The optimizer is opened rarely; its code loads only when the page is visited.
+const OptimizerPage = lazy(() => import('../features/optimizer/OptimizerPage'));
 
 /** Once the app has settled, load those pages in the background, so Ctrl+8 / Ctrl+9 open without a spinner. */
 export const PREFETCH_DELAY_MS = 3000;
@@ -105,6 +107,7 @@ export function App({ repository, storageWarning = null, preferences }: AppProps
                           <Route path="snippets" element={<SnippetsPage />} />
                           <Route path="code-tester" element={<PageLoader><CodeTesterPage /></PageLoader>} />
                           <Route path="statistics" element={<PageLoader><StatisticsPage /></PageLoader>} />
+                          <Route path="optimizer" element={<PageLoader><OptimizerPage /></PageLoader>} />
                           <Route path="settings" element={<SettingsPage />} />
                           <Route path="*" element={<NotFoundPage />} />
                         </Route>

@@ -260,6 +260,66 @@ ipcMain.on('void:discord-activity', (event, activity) => {
   getDiscordPresence().setActivity(activity);
 });
 
+/* ---------- PC Optimizer (phase A–C: read-only scan, preview, dry run) ---------- */
+
+// Must match src/domain/optimizer/channels.ts (checked by a test). The page can only
+// call these seven functions and only pass ids it received from the backend.
+const OPTIMIZER_CHANNELS = {
+  startScan: 'void:optimizer-start-scan',
+  createPreview: 'void:optimizer-create-preview',
+  updateSelection: 'void:optimizer-update-selection',
+  validatePreview: 'void:optimizer-validate-preview',
+  confirmPreview: 'void:optimizer-confirm-preview',
+  executeDryRun: 'void:optimizer-execute-dry-run',
+  getHistory: 'void:optimizer-get-history',
+};
+
+// The backend is TypeScript, bundled by `npm run build:desktop-backend`. Loaded on first use, never at startup.
+/** @type {{ api: unknown, invoke: (api: unknown, method: string, args: unknown[]) => Promise<unknown> } | null} */
+let optimizer = null;
+
+function getOptimizer() {
+  if (!optimizer) {
+    const { createOptimizerBackend, invokeOptimizer } = require('./generated/optimizerBackend.cjs');
+    const ownName = path.parse(process.env.PORTABLE_EXECUTABLE_FILE || process.execPath).name;
+    optimizer = { api: createOptimizerBackend({ ownProcessNames: [ownName, 'VOID', 'electron'] }), invoke: invokeOptimizer };
+  }
+  return optimizer;
+}
+
+for (const [method, channel] of Object.entries(OPTIMIZER_CHANNELS)) {
+  ipcMain.handle(channel, async (event, ...args) => {
+    if (!fromApp(event)) return { ok: false, error: { code: 'unavailable', message: 'Not allowed.' } };
+    try {
+      const { api, invoke } = getOptimizer();
+      return await invoke(api, method, args.slice(0, 2));
+    } catch {
+      return { ok: false, error: { code: 'unavailable', message: 'The PC Optimizer could not be loaded.' } };
+    }
+  });
+}
+
+// One-click "Open": the page sends a fixed target id (e.g. "settings:startup-apps"); the
+// backend maps it to a folder, a settings page or the Task Manager. Opening only shows a place.
+const OPEN_TARGET_CHANNEL = 'void:optimizer-open-target';
+ipcMain.handle(OPEN_TARGET_CHANNEL, async (event, id) => {
+  if (!fromApp(event)) return false;
+  try {
+    const { resolveOpenTarget } = require('./generated/optimizerBackend.cjs');
+    const target = resolveOpenTarget(id, process.env);
+    if (!target) return false;
+    if (target.kind === 'uri') {
+      if (!/^ms-settings:[a-z]+$/.test(target.value)) return false;
+      await shell.openExternal(target.value);
+      return true;
+    }
+    if (!fs.existsSync(target.value)) return false;
+    return (await shell.openPath(target.value)) === '';
+  } catch {
+    return false;
+  }
+});
+
 /* ---------- App lifecycle ---------- */
 
 Menu.setApplicationMenu(null);

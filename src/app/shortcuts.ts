@@ -37,11 +37,12 @@ export interface ShortcutHelp {
 }
 
 /** Shown in Settings, so every shortcut can be looked up in one place. */
-export function describeGlobalShortcuts(navigation: ReadonlyArray<{ label: string; shortcut: number }>): ShortcutHelp[] {
+export function describeGlobalShortcuts(navigation: ReadonlyArray<{ label: string; shortcut?: number | undefined }>): ShortcutHelp[] {
   return [
     { keys: SEARCH_SHORTCUT_LABEL, description: 'Search everything' },
     { keys: QUICK_ADD_SHORTCUT_LABEL, description: 'Quick add: create a task, project, note, snippet or bug' },
-    ...[...navigation]
+    ...navigation
+      .filter((item): item is { label: string; shortcut: number } => item.shortcut !== undefined)
       .sort((a, b) => a.shortcut - b.shortcut)
       .map((item) => ({ keys: `Ctrl ${item.shortcut}`, description: `Go to ${item.label}` })),
     { keys: 'Esc', description: 'Close a dialog, or leave selection mode in a list' },

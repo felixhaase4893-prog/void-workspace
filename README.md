@@ -30,6 +30,7 @@ VOID sits next to your IDE and GitHub, not in place of them. It is the place for
 - **Multi-select** and bulk actions, with **Undo** after deleting.
 - **Backup**: export everything as JSON and import it again (merge or replace, with preview).
 - **Discord Rich Presence** (optional): shows a generic status like "Working on a project". Project names or code are never sent.
+- **PC Optimizer** (desktop app): a read-only quick scan or deep scan of your PC. It shows which programs use the most CPU, GPU, RAM and network, lists performance hogs with step-by-step fixes, and opens the right folder or Windows settings page in one click. In this version every action is only simulated – nothing on your PC is changed.
 - Keyboard-first: `Ctrl+1` to `Ctrl+9` jump between pages.
 
 ## Download
@@ -46,6 +47,7 @@ VOID is local-first by design:
 - Your data stays on your machine (in the app's data folder, `%APPDATA%\void`).
 - Nothing is synced. Use **Settings → Export JSON** for backups.
 - The only optional network-ish feature is Discord Rich Presence, which talks to the Discord app on your own PC through a local pipe and can be turned off in Settings.
+- The PC Optimizer only reads (processes, startup entries, temp folders, system info) through a fixed set of read-only Windows queries. It never deletes files, ends processes, edits the registry or asks for admin rights, and its results never leave your PC.
 
 ## Build from source
 

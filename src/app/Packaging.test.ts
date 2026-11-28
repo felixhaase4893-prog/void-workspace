@@ -39,7 +39,7 @@ describe('desktop bridge', () => {
   const preload = read('electron/preload.cjs').toString('utf8');
   const main = read('electron/main.cjs').toString('utf8');
 
-  it('exposes only notifications, tray mode and Discord presence to the page', () => {
+  it('exposes only notifications, tray mode, Discord presence and the read-only PC Optimizer to the page', () => {
     expect(preload).toContain("exposeInMainWorld('voidDesktop'");
     expect(preload.match(/ipcRenderer\.(invoke|send)\('([^']+)'/g)).toEqual([
       "ipcRenderer.invoke('void:notify'",
@@ -51,6 +51,13 @@ describe('desktop bridge', () => {
     ]);
     // Only booleans and a fixed activity name cross the bridge for Discord, never free text.
     expect(preload).toContain("ACTIVITIES = new Set(['idle', 'project', 'code-tester'])");
+  });
+
+  it('passes only ids to the PC Optimizer, never paths or commands, and loads its backend on first use', () => {
+    expect(preload.match(/ipcRenderer\.invoke\(OPTIMIZER_CHANNELS\.\w+/g)).toHaveLength(7);
+    expect(preload).toContain('const asIds = (values) => (Array.isArray(values) ? values.slice(0, 500).map(asId) : []);');
+    expect(main.indexOf("require('./generated/optimizerBackend.cjs')")).toBeGreaterThan(main.indexOf('function getOptimizer'));
+    expect(main).toContain('args.slice(0, 2)');
   });
 
   it('refreshes the Start menu shortcut after the EXE was replaced, so Windows reloads the icon', () => {

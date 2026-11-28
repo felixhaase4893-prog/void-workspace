@@ -5,6 +5,7 @@ node_modules
 dist
 release
 VOID-App
+electron/generated
 *.exe
 *.tsbuildinfo
 coverage

@@ -1,4 +1,5 @@
 import type { DiscordSettings, PresenceActivity, PresenceState } from '../domain/discordPresence';
+import type { OptimizerApi } from '../domain/optimizer/service';
 
 /**
  * The small, explicit bridge the Electron shell exposes to the page
@@ -13,6 +14,8 @@ export interface DesktopBridge {
   setKeepInTray(enabled: boolean): void;
   /** Discord Rich Presence (VOID 4.3). Missing in older desktop builds. */
   discord?: DiscordBridge;
+  /** PC Optimizer backend (read-only scan, preview, dry run). Missing in older desktop builds. */
+  optimizer?: OptimizerApi & { openTarget?: (id: string) => Promise<boolean> };
 }
 
 /**

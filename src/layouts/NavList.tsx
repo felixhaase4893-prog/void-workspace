@@ -18,8 +18,8 @@ export function NavList({ responsive = false, onNavigate }: NavListProps) {
             to={to}
             end={to === '/'}
             onClick={onNavigate}
-            title={`${label} (Ctrl ${shortcut})`}
-            aria-keyshortcuts={`Control+${shortcut}`}
+            title={shortcut === undefined ? label : `${label} (Ctrl ${shortcut})`}
+            aria-keyshortcuts={shortcut === undefined ? undefined : `Control+${shortcut}`}
             className={({ isActive }) =>
               cn(
                 'group relative flex h-9 items-center gap-3 rounded-lg text-[13px] font-medium transition-colors',

@@ -11,11 +11,11 @@ import { renderApp } from '../test/renderApp';
 describe('VOID 4.3 polish', () => {
   it('shows the app version in Settings, taken from package.json', async () => {
     const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
-    expect(version).toBe('4.3.0');
+    expect(version).toBe('4.4.0');
     expect(APP_VERSION).toBe(version);
     renderApp({ route: '/settings' });
     const storage = (await screen.findByRole('heading', { name: 'Storage' })).closest('section')!;
-    expect(within(storage).getByText('VOID version').nextElementSibling).toHaveTextContent('4.3.0');
+    expect(within(storage).getByText('VOID version').nextElementSibling).toHaveTextContent('4.4.0');
   });
 
   it('starts every page at the top', async () => {
