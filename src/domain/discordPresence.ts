@@ -1,3 +1,4 @@
+import { t } from '../i18n/translate';
 /**
  * Discord Rich Presence, page side. The page only decides *which* of three
  * fixed activities applies; the text itself lives in the desktop shell
@@ -50,23 +51,23 @@ export interface ConnectionDescription {
 export function describeConnection(status: PresenceConnection | 'browser'): ConnectionDescription {
   switch (status) {
     case 'connected':
-      return { label: 'Connected', tone: 'success', detail: 'Your status is visible in Discord.' };
+      return { label: t('Connected'), tone: 'success', detail: t('Your status is visible in Discord.') };
     case 'connecting':
-      return { label: 'Connecting…', tone: 'accent', detail: 'Looking for the Discord desktop app.' };
+      return { label: t('Connecting…'), tone: 'accent', detail: t('Looking for the Discord desktop app.') };
     case 'unavailable':
       return {
-        label: 'Discord not running',
+        label: t('Discord not running'),
         tone: 'warning',
-        detail: 'Discord desktop is not open. VOID connects on its own as soon as it is; everything else works as usual.',
+        detail: t('Discord desktop is not open. VOID connects on its own as soon as it is; everything else works as usual.'),
       };
     case 'error':
-      return { label: 'Not accepted', tone: 'danger', detail: 'Discord did not accept the connection. Rich Presence stays off until VOID is restarted.' };
+      return { label: t('Not accepted'), tone: 'danger', detail: t('Discord did not accept the connection. Rich Presence stays off until VOID is restarted.') };
     case 'not-configured':
-      return { label: 'Not set up', tone: 'warning', detail: 'This build of VOID has no Discord application ID, so Rich Presence is not available.' };
+      return { label: t('Not set up'), tone: 'warning', detail: t('This build of VOID has no Discord application ID, so Rich Presence is not available.') };
     case 'browser':
-      return { label: 'Desktop app only', tone: 'neutral', detail: 'Rich Presence needs the VOID desktop app and the Discord desktop app on the same PC.' };
+      return { label: t('Desktop app only'), tone: 'neutral', detail: t('Rich Presence needs the VOID desktop app and the Discord desktop app on the same PC.') };
     case 'disabled':
     default:
-      return { label: 'Off', tone: 'neutral', detail: 'Nothing is shared with Discord.' };
+      return { label: t('Off'), tone: 'neutral', detail: t('Nothing is shared with Discord.') };
   }
 }

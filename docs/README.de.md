@@ -2,7 +2,7 @@
 
 Ein kostenloser, local-first Workspace für Entwickler: Projekte, Aufgaben, technische Notizen und wiederverwendbare Code-Snippets an einem Ort. VOID ergänzt IDE und GitHub, es ersetzt sie nicht.
 
-Version: **4.3.0** – Abschlussupdate der 4.x-Reihe (siehe [docs/ARCHITECTURE.md](ARCHITECTURE.md) und [docs/ROADMAP.md](ROADMAP.md)).
+Version: **4.5.0** – VOID gibt es jetzt auf Englisch, Spanisch, Chinesisch (vereinfacht) und Deutsch, umschaltbar unter *Settings → Language* (siehe [docs/UPDATE-4.5.md](UPDATE-4.5.md), [docs/ARCHITECTURE.md](ARCHITECTURE.md) und [docs/ROADMAP.md](ROADMAP.md)).
 
 ## Schnellstart
 

@@ -9,8 +9,10 @@ import { cn } from '../../lib/cn';
 import { useWorkspace } from '../../state/workspaceContext';
 import { countLabel, useBulkActions, type BulkType } from './useBulkActions';
 import type { SelectionState } from './useSelection';
+import { type MessageKey, t } from '../../i18n/translate';
 
 const NO_PROJECT = '__none__';
+const PLURALS: Record<BulkType, MessageKey> = { task: 'tasks', bug: 'bugs' };
 
 interface SelectionBarProps {
   type: BulkType;
@@ -49,8 +51,8 @@ export function SelectionBar({ type, selection, visibleCount }: SelectionBarProp
 
   const setProject = (value: string) => {
     const projectId = value === NO_PROJECT ? null : value;
-    const name = projectId === null ? 'no project' : (workspace.projects.find((project) => project.id === projectId)?.name ?? 'the project');
-    const describe = (label: string) => `${label} moved to ${projectId === null ? name : `“${name}”`}.`;
+    const name = workspace.projects.find((project) => project.id === projectId)?.name ?? '';
+    const describe = (items: string) => (projectId === null ? t('{items} moved out of their project.', { items }) : t('{items} moved to {project}.', { items, project: t('“{title}”', { title: name }) }));
     void run(() => (type === 'task' ? editTasks(ids, { projectId }, describe) : editBugs(ids, { projectId }, describe)));
   };
 
@@ -62,7 +64,7 @@ export function SelectionBar({ type, selection, visibleCount }: SelectionBarProp
   return (
     <div
       role="region"
-      aria-label={`Selected ${type}s`}
+      aria-label={t('Selected {items}', { items: t(PLURALS[type]) })}
       className="sticky top-16 z-20 mb-3 flex animate-fade-in flex-wrap items-center gap-2 rounded-card border border-accent-500/30 bg-overlay/95 px-3 py-2 shadow-lg shadow-black/40 backdrop-blur-md md:top-3"
     >
       <div className="order-1 flex min-w-0 flex-1 items-center gap-2.5 pr-1">
@@ -76,61 +78,61 @@ export function SelectionBar({ type, selection, visibleCount }: SelectionBarProp
           className="size-4 accent-accent-500"
         />
         <label htmlFor={allId} className="sr-only">
-          Select all shown {type}s
+          {t('Select all shown {items}', { items: t(PLURALS[type]) })}
         </label>
         <p aria-live="polite" className="text-[13px] font-medium whitespace-nowrap text-fg">
-          {none ? `Select ${type}s` : `${count} selected`}
+          {none ? t('Select {items}', { items: t(PLURALS[type]) }) : t('{count} selected', { count })}
         </p>
       </div>
 
       <div className="order-3 flex w-full flex-wrap items-center gap-1.5 xl:order-2 xl:w-auto xl:justify-end">
         {type === 'task' ? (
           <>
-            <Button size="sm" icon={<Check />} disabled={none || pending} onClick={() => void run(() => editTasks(ids, { status: 'done' }, (label) => `${label} marked as done.`))}>
-              Mark done
+            <Button size="sm" icon={<Check />} disabled={none || pending} onClick={() => void run(() => editTasks(ids, { status: 'done' }, (items) => t('{items} marked as done.', { items })))}>
+              {t('Mark done')}
             </Button>
             <BulkSelect
-              label="Set priority"
+              label={t('Set priority')}
               disabled={none || pending}
               options={TASK_PRIORITIES.map((priority) => ({ value: priority, label: TASK_PRIORITY_LABELS[priority] }))}
-              onSelect={(value) => void run(() => editTasks(ids, { priority: value as TaskPriority }, (label) => `${label} set to ${TASK_PRIORITY_LABELS[value as TaskPriority].toLowerCase()} priority.`))}
+              onSelect={(value) => void run(() => editTasks(ids, { priority: value as TaskPriority }, (items) => t('{items} set to priority “{priority}”.', { items, priority: TASK_PRIORITY_LABELS[value as TaskPriority] })))}
             />
           </>
         ) : (
           <>
             <BulkSelect
-              label="Set status"
+              label={t('Set status')}
               disabled={none || pending}
               options={BUG_STATUSES.map((status) => ({ value: status, label: BUG_STATUS_LABELS[status] }))}
-              onSelect={(value) => void run(() => editBugs(ids, { status: value as BugStatus }, (label) => `${label} set to “${BUG_STATUS_LABELS[value as BugStatus]}”.`))}
+              onSelect={(value) => void run(() => editBugs(ids, { status: value as BugStatus }, (items) => t('{items} set to “{status}”.', { items, status: BUG_STATUS_LABELS[value as BugStatus] })))}
             />
             <BulkSelect
-              label="Set priority"
+              label={t('Set priority')}
               disabled={none || pending}
               options={BUG_PRIORITIES.map((priority) => ({ value: priority, label: BUG_PRIORITY_LABELS[priority] }))}
-              onSelect={(value) => void run(() => editBugs(ids, { priority: value as BugPriority }, (label) => `${label} set to ${BUG_PRIORITY_LABELS[value as BugPriority].toLowerCase()} priority.`))}
+              onSelect={(value) => void run(() => editBugs(ids, { priority: value as BugPriority }, (items) => t('{items} set to priority “{priority}”.', { items, priority: BUG_PRIORITY_LABELS[value as BugPriority] })))}
             />
           </>
         )}
         <BulkSelect
-          label="Move to project"
+          label={t('Move to project')}
           disabled={none || pending}
-          options={[{ value: NO_PROJECT, label: 'No project' }, ...projects.map((project) => ({ value: project.id, label: project.name }))]}
+          options={[{ value: NO_PROJECT, label: t('No project') }, ...projects.map((project) => ({ value: project.id, label: project.name }))]}
           onSelect={setProject}
         />
         <Button size="sm" variant="ghost" icon={<Trash2 />} disabled={none || pending} onClick={() => setConfirming(true)} className="hover:text-danger">
-          Delete
+          {t('Delete')}
         </Button>
       </div>
-      <Button size="sm" variant="ghost" icon={<X />} onClick={selection.stop} title="Leave selection mode (Esc)" className="order-2 xl:order-3">
-        Done
+      <Button size="sm" variant="ghost" icon={<X />} onClick={selection.stop} title={t('Leave selection mode (Esc)')} className="order-2 xl:order-3">
+        {t('Done')}
       </Button>
 
       {confirming && (
         <ConfirmDialog
-          title={`Delete ${countLabel(type, count)}?`}
-          description={`The selected ${count === 1 ? type : `${type}s`} will be removed from this device. You can undo this for a few seconds afterwards.`}
-          confirmLabel={`Delete ${countLabel(type, count)}`}
+          title={t('Delete {items}?', { items: countLabel(type, count) })}
+          description={t('The selected items will be removed from this device. You can undo this for a few seconds afterwards.')}
+          confirmLabel={t('Delete {items}', { items: countLabel(type, count) })}
           pending={pending}
           onConfirm={() => void confirmDelete()}
           onClose={() => setConfirming(false)}
@@ -184,7 +186,7 @@ export function RowSelectCheckbox({ title, selected, onToggle }: { title: string
   return (
     <input
       type="checkbox"
-      aria-label={`Select “${title}”`}
+      aria-label={t('Select “{title}”', { title })}
       checked={selected}
       onChange={() => {}}
       onClick={(event) => {

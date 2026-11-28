@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 
 import { cn } from '../../lib/cn';
 import { ToastContext, type ToastAction, type ToastOptions, type ToastTone } from './toastContext';
+import { t } from '../../i18n/translate';
 
 interface Toast {
   id: number;
@@ -131,7 +132,7 @@ function ToastItem({ toast, onDismiss, onAction }: ToastItemProps) {
           {toast.action.label}
         </button>
       )}
-      <button type="button" aria-label="Dismiss" onClick={() => onDismiss(toast.id)} className="mt-px rounded text-subtle hover:text-fg">
+      <button type="button" aria-label={t('Dismiss')} onClick={() => onDismiss(toast.id)} className="mt-px rounded text-subtle hover:text-fg">
         <X className="size-4" aria-hidden="true" />
       </button>
     </div>

@@ -4,6 +4,7 @@ import { WORKSPACE_SCHEMA_VERSION, workspaceSchema, type Workspace } from '../do
 import { mergeDuplicateTags, removeUnknownTagIds } from '../domain/tags';
 import { err, ok, type Result } from '../lib/result';
 import { WORKSPACE_MIGRATIONS, migrate, type MigrationMap } from './migrations';
+import { t } from '../i18n/translate';
 
 /**
  * The backup file format. It wraps the regular workspace document (which has
@@ -116,63 +117,63 @@ export function parseBackup(text: string, options: ParseBackupOptions = {}): Res
   const { migrations = WORKSPACE_MIGRATIONS, schemaVersion = WORKSPACE_SCHEMA_VERSION } = options;
 
   if (text.length > MAX_BACKUP_BYTES) {
-    return err({ kind: 'too-large', message: 'This file is larger than 10 MB and cannot be a VOID backup.' });
+    return err({ kind: 'too-large', message: t('This file is larger than 10 MB and cannot be a VOID backup.') });
   }
 
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    return err({ kind: 'not-json', message: 'This file is not valid JSON. Choose a backup exported from VOID.' });
+    return err({ kind: 'not-json', message: t('This file is not valid JSON. Choose a backup exported from VOID.') });
   }
   if (!isRecord(raw)) {
-    return err({ kind: 'wrong-format', message: 'This file is not a VOID backup.' });
+    return err({ kind: 'wrong-format', message: t('This file is not a VOID backup.') });
   }
 
   let workspaceData: unknown;
   let exportedAt: string | null = null;
   if ('format' in raw) {
     if (raw.format !== BACKUP_FORMAT) {
-      return err({ kind: 'wrong-format', message: 'This file is not a VOID backup.' });
+      return err({ kind: 'wrong-format', message: t('This file is not a VOID backup.') });
     }
     if (typeof raw.formatVersion === 'number' && raw.formatVersion > BACKUP_FORMAT_VERSION) {
       return err({
         kind: 'unsupported-version',
-        message: `This backup uses file format ${raw.formatVersion}, which needs a newer version of VOID.`,
+        message: t('This backup uses file format {version}, which needs a newer version of VOID.', { version: String(raw.formatVersion) }),
       });
     }
     const envelope = envelopeSchema.safeParse(raw);
     if (!envelope.success) {
-      return err({ kind: 'invalid', message: 'The backup file is damaged.', issues: formatIssues(envelope.error.issues) });
+      return err({ kind: 'invalid', message: t('The backup file is damaged.'), issues: formatIssues(envelope.error.issues) });
     }
     workspaceData = envelope.data.workspace;
     exportedAt = envelope.data.exportedAt;
   } else if (isLegacyWorkspace(raw)) {
     workspaceData = raw;
   } else {
-    return err({ kind: 'wrong-format', message: 'This file is not a VOID backup.' });
+    return err({ kind: 'wrong-format', message: t('This file is not a VOID backup.') });
   }
 
   const migrated = migrate(workspaceData, schemaVersion, migrations);
   if (!migrated.ok) {
     const { error } = migrated;
     return error.kind === 'unsupported-version'
-      ? err({ kind: 'unsupported-version', message: `The data in this backup cannot be read by this version of VOID. ${error.message}` })
-      : err({ kind: 'invalid', message: 'The backup contains no valid VOID data.', issues: [error.message] });
+      ? err({ kind: 'unsupported-version', message: t('The data in this backup cannot be read by this version of VOID. {reason}', { reason: error.message }) })
+      : err({ kind: 'invalid', message: t('The backup contains no valid VOID data.'), issues: [error.message] });
   }
 
   const validated = workspaceSchema.safeParse(migrated.value.data);
   if (!validated.success) {
     return err({
       kind: 'invalid',
-      message: 'The backup contains data VOID does not accept.',
+      message: t('The backup contains data VOID does not accept.'),
       issues: formatIssues(validated.error.issues),
     });
   }
 
   const duplicates = findDuplicateIds(validated.data);
   if (duplicates.length > 0) {
-    return err({ kind: 'invalid', message: 'The backup contains duplicate entries.', issues: duplicates.slice(0, 10) });
+    return err({ kind: 'invalid', message: t('The backup contains duplicate entries.'), issues: duplicates.slice(0, 10) });
   }
 
   const projectsFixed = clearDanglingReferences(validated.data);

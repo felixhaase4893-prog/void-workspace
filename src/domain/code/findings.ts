@@ -5,22 +5,24 @@
  * worded as "possible" and never shown as a certain error.
  */
 
+import { localized } from '../../i18n/translate';
+
 export const FINDING_CATEGORIES = ['error', 'warning', 'info', 'suggestion'] as const;
 export type FindingCategory = (typeof FINDING_CATEGORIES)[number];
 
-export const FINDING_CATEGORY_LABELS: Record<FindingCategory, string> = {
+export const FINDING_CATEGORY_LABELS = localized<FindingCategory>({
   error: 'Errors',
   warning: 'Warnings',
   info: 'Info',
   suggestion: 'Suggestions',
-};
+});
 
-export const FINDING_CATEGORY_SINGULAR: Record<FindingCategory, string> = {
+export const FINDING_CATEGORY_SINGULAR = localized<FindingCategory>({
   error: 'Error',
   warning: 'Warning',
   info: 'Info',
   suggestion: 'Suggestion',
-};
+});
 
 /** How much a finding matters within its category. */
 export type FindingSeverity = 'high' | 'medium' | 'low';

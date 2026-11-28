@@ -1,4 +1,5 @@
 import { BUG_PRIORITIES, BUG_STATUSES, TASK_PRIORITIES, TASK_STATUSES, isValidDueDate, type EntityOfType, type EntityType } from './models';
+import { localized, type MessageKey, t } from '../i18n/translate';
 
 /**
  * Pure sort logic for the four overviews. Like filters, sorting is only a view:
@@ -19,7 +20,7 @@ export const SORT_KEYS: { readonly [T in EntityType]: readonly SortKey[] } = {
   bug: ['default', 'name-asc', 'name-desc', 'created-desc', 'created-asc', 'updated-desc', 'priority', 'status', 'due-asc'],
 };
 
-export const SORT_LABELS: Record<SortKey, string> = {
+export const SORT_LABELS = localized<SortKey>({
   default: 'Default order',
   'name-asc': 'Name: A–Z',
   'name-desc': 'Name: Z–A',
@@ -29,15 +30,16 @@ export const SORT_LABELS: Record<SortKey, string> = {
   priority: 'Priority: high to low',
   status: 'Status: to do first',
   'due-asc': 'Due date: soonest first',
-};
+});
 
 /** The few labels that read differently for one overview, e.g. bugs are "open", not "to do". */
-const SORT_LABEL_OVERRIDES: Partial<Record<EntityType, Partial<Record<SortKey, string>>>> = {
+const SORT_LABEL_OVERRIDES: Partial<Record<EntityType, Partial<Record<SortKey, MessageKey>>>> = {
   bug: { status: 'Status: open first' },
 };
 
 export function getSortLabel(type: EntityType, key: SortKey): string {
-  return SORT_LABEL_OVERRIDES[type]?.[key] ?? SORT_LABELS[key];
+  const override = SORT_LABEL_OVERRIDES[type]?.[key];
+  return override ? t(override) : SORT_LABELS[key];
 }
 
 /** The stored order (new items are added at the top). Keeps the lists exactly as they were before sorting existed. */

@@ -6,6 +6,7 @@ import { ENTITY_LABELS } from '../../domain/labels';
 import type { Workspace } from '../../domain/models';
 import { getRecentItems } from '../../domain/workspace';
 import { formatRelativeTime } from '../../lib/format';
+import { t } from '../../i18n/translate';
 
 export function RecentActivity({ workspace }: { workspace: Workspace }) {
   const items = getRecentItems(workspace, 6);
@@ -13,9 +14,9 @@ export function RecentActivity({ workspace }: { workspace: Workspace }) {
 
   return (
     <Card>
-      <CardHeader title="Recently edited" />
+      <CardHeader title={t('Recently edited')} />
       {items.length === 0 ? (
-        <p className="px-5 py-6 text-[13px] text-muted">Nothing edited yet.</p>
+        <p className="px-5 py-6 text-[13px] text-muted">{t('Nothing edited yet.')}</p>
       ) : (
         <ul className="divide-y divide-line">
           {items.map((item) => {

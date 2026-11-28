@@ -7,6 +7,7 @@ import { markStartup } from '../lib/startupMarks';
 import { MobileHeader } from './MobileHeader';
 import { Sidebar } from './Sidebar';
 import { StatusBanners } from './StatusBanners';
+import { t } from '../i18n/translate';
 
 export function AppLayout() {
   useEffect(() => markStartup('void:interactive'), []);
@@ -22,7 +23,7 @@ export function AppLayout() {
         href="#main"
         className="sr-only rounded-lg bg-accent-500 text-sm font-medium text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:px-3 focus:py-2"
       >
-        Skip to content
+        {t('Skip to content')}
       </a>
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">

@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 
 import { cn } from '../../lib/cn';
 import { IconButton } from './Button';
+import { t } from '../../i18n/translate';
 
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -129,7 +130,7 @@ export function Dialog({ open, onClose, title, description, children, footer, pl
               </p>
             )}
           </div>
-          <IconButton label="Close" onClick={onClose} className="-mt-1 -mr-2">
+          <IconButton label={t('Close')} onClick={onClose} className="-mt-1 -mr-2">
             <X />
           </IconButton>
         </header>

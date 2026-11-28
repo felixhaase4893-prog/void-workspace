@@ -13,6 +13,7 @@ import {
   type TagSelection,
   type Workspace,
 } from './models';
+import { t } from '../i18n/translate';
 
 /**
  * Pure tag logic. Tags live once in `workspace.tags`; items only store tag ids
@@ -58,13 +59,13 @@ export function findTagByName(tags: readonly Tag[], name: string): Tag | undefin
 /** Returns the normalized name, or why it cannot be used. `exceptId` is the tag being renamed. */
 export function validateTagName(tags: readonly Tag[], rawName: unknown, exceptId: string | null = null): Result<string, TagError> {
   const name = typeof rawName === 'string' ? normalizeTagName(rawName) : '';
-  if (name === '') return err({ kind: 'empty', message: 'Tag names cannot be empty.' });
+  if (name === '') return err({ kind: 'empty', message: t('Tag names cannot be empty.') });
   if (name.length > MAX_TAG_NAME_LENGTH) {
-    return err({ kind: 'too-long', message: `Tag names must be at most ${MAX_TAG_NAME_LENGTH} characters.` });
+    return err({ kind: 'too-long', message: t('Tag names must be at most {max} characters.', { max: MAX_TAG_NAME_LENGTH }) });
   }
   const existing = findTagByName(tags, name);
   if (existing && existing.id !== exceptId) {
-    return err({ kind: 'duplicate', message: `A tag called “${existing.name}” already exists.`, existingId: existing.id });
+    return err({ kind: 'duplicate', message: t('A tag called “{name}” already exists.', { name: existing.name }), existingId: existing.id });
   }
   return ok(name);
 }
@@ -73,7 +74,7 @@ function validateInput(tags: readonly Tag[], input: TagInput, exceptId: string |
   const name = validateTagName(tags, input.name, exceptId);
   if (!name.ok) return name;
   if (input.color !== null && !isTagColor(input.color)) {
-    return err({ kind: 'invalid-color', message: 'Choose one of the offered colours.' });
+    return err({ kind: 'invalid-color', message: t('Choose one of the offered colours.') });
   }
   return ok({ name: name.value, color: input.color });
 }
@@ -81,7 +82,7 @@ function validateInput(tags: readonly Tag[], input: TagInput, exceptId: string |
 /* ---------- Managing tags ---------- */
 
 export function createTag(workspace: Workspace, input: TagInput, context: TagContext): Result<{ workspace: Workspace; tag: Tag }, TagError> {
-  if (workspace.tags.length >= MAX_TAGS) return err({ kind: 'limit', message: `VOID supports up to ${MAX_TAGS} tags.` });
+  if (workspace.tags.length >= MAX_TAGS) return err({ kind: 'limit', message: t('VOID supports up to {max} tags.', { max: MAX_TAGS }) });
   const valid = validateInput(workspace.tags, input, null);
   if (!valid.ok) return valid;
   const iso = context.now.toISOString();
@@ -92,7 +93,7 @@ export function createTag(workspace: Workspace, input: TagInput, context: TagCon
 /** Renames and/or recolours a tag. Every item keeps it, because items only store the id. */
 export function updateTag(workspace: Workspace, tagId: string, input: TagInput, context: Pick<TagContext, 'now'>): Result<Workspace, TagError> {
   const current = workspace.tags.find((tag) => tag.id === tagId);
-  if (!current) return err({ kind: 'not-found', message: 'This tag no longer exists.' });
+  if (!current) return err({ kind: 'not-found', message: t('This tag no longer exists.') });
   const valid = validateInput(workspace.tags, input, tagId);
   if (!valid.ok) return valid;
   if (valid.value.name === current.name && valid.value.color === current.color) return ok(workspace);

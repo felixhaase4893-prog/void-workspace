@@ -14,14 +14,23 @@ import { useWorkspace, useWorkspaceActions, type SaveResult } from '../../state/
 import { useEntityDialogs } from '../create/entityDialogContext';
 import { ProjectReferenceSelect } from '../create/ProjectReferenceSelect';
 import { buildQuickAddInput, EMPTY_DRAFT, QUICK_ADD_TYPES, type QuickAddDraft, type QuickAddField, type QuickAddInput } from './quickAddInput';
+import { localized, t } from '../../i18n/translate';
 
-const PLACEHOLDERS: Record<EntityType, string> = {
+const PLACEHOLDERS = localized<EntityType>({
   task: 'What needs doing?',
   project: 'Project name',
   note: 'Note title',
   snippet: 'Snippet title',
   bug: 'What is broken?',
-};
+});
+
+const CREATE_LABELS = localized<EntityType>({
+  task: 'Create task',
+  project: 'Create project',
+  note: 'Create note',
+  snippet: 'Create snippet',
+  bug: 'Create bug',
+});
 
 const LANGUAGE_SUGGESTIONS = ['TypeScript', 'JavaScript', 'Luau', 'Lua', 'Python', 'C#', 'C++', 'Rust', 'Go', 'GDScript', 'SQL', 'Shell', 'HTML', 'CSS'];
 
@@ -97,11 +106,11 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
     setPending(false);
     const title = draft.title.trim();
     if (saved.ok) {
-      showToast(`${label} “${title}” created.`, 'success', {
-        action: { label: 'View', onAction: () => navigate(ENTITY_ROUTES[type]) },
+      showToast(t('{label} “{title}” created.', { label, title }), 'success', {
+        action: { label: t('View'), onAction: () => navigate(ENTITY_ROUTES[type]) },
       });
     } else {
-      showToast(`Created for now, but not saved: ${saved.error.message}`, 'danger');
+      showToast(t('Created for now, but not saved: {reason}', { reason: saved.error.message }), 'danger');
     }
     if (!keepOpen) {
       onClose();
@@ -156,18 +165,18 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
     <Dialog
       open
       onClose={onClose}
-      title="Quick add"
+      title={t('Quick add')}
       className="sm:max-w-xl"
       footer={
         <>
           <Button variant="ghost" size="sm" onClick={openFullForm} className="mr-auto">
-            More options…
+            {t('More options…')}
           </Button>
           <Button variant="ghost" size="sm" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="submit" form={formId} variant="primary" size="sm" disabled={pending}>
-            {pending ? 'Saving…' : `Create ${label.toLowerCase()}`}
+            {pending ? t('Saving…') : CREATE_LABELS[type]}
           </Button>
         </>
       }
@@ -183,7 +192,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
         }}
         className="space-y-4"
       >
-        <div role="radiogroup" aria-label="What to create" className="grid grid-cols-5 gap-1 rounded-lg border border-line bg-canvas p-1">
+        <div role="radiogroup" aria-label={t('What to create')} className="grid grid-cols-5 gap-1 rounded-lg border border-line bg-canvas p-1">
           {QUICK_ADD_TYPES.map((entry, index) => {
             const Icon = ENTITY_ICONS[entry];
             const checked = entry === type;
@@ -194,7 +203,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
                 role="radio"
                 aria-checked={checked}
                 aria-keyshortcuts={`Alt+${index + 1}`}
-                title={`${ENTITY_LABELS[entry]} (Alt ${index + 1})`}
+                title={t('{label} (Alt {key})', { label: ENTITY_LABELS[entry], key: index + 1 })}
                 data-type={entry}
                 tabIndex={checked ? 0 : -1}
                 onClick={() => switchType(entry)}
@@ -211,7 +220,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
           })}
         </div>
 
-        <Field label={type === 'project' ? 'Name' : 'Title'} error={errors.title}>
+        <Field label={type === 'project' ? t('Name') : t('Title')} error={errors.title}>
           {(field) => (
             <Input
               {...field}
@@ -228,7 +237,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
         </Field>
 
         {type === 'project' && (
-          <Field label="Type">
+          <Field label={t('Type')}>
             {(field) => (
               <Select {...field} value={draft.kind} onChange={(event) => set('kind', event.target.value as QuickAddDraft['kind'])}>
                 {PROJECT_KINDS.map((kind) => (
@@ -244,7 +253,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
         {type === 'task' && (
           <div className="grid gap-4 sm:grid-cols-3">
             <ProjectReferenceSelect value={draft.projectId} onChange={(value) => set('projectId', value)} />
-            <Field label="Priority">
+            <Field label={t('Priority')}>
               {(field) => (
                 <Select {...field} value={draft.taskPriority} onChange={(event) => set('taskPriority', event.target.value as QuickAddDraft['taskPriority'])}>
                   {TASK_PRIORITIES.map((priority) => (
@@ -255,7 +264,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
                 </Select>
               )}
             </Field>
-            <Field label="Due date" optional error={errors.dueDate}>
+            <Field label={t('Due date')} optional error={errors.dueDate}>
               {(field) => <Input {...field} type="date" value={draft.dueDate} onChange={(event) => set('dueDate', event.target.value)} className="[color-scheme:dark]" />}
             </Field>
           </div>
@@ -264,7 +273,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
         {type === 'bug' && (
           <div className="grid gap-4 sm:grid-cols-2">
             <ProjectReferenceSelect value={draft.projectId} onChange={(value) => set('projectId', value)} />
-            <Field label="Priority">
+            <Field label={t('Priority')}>
               {(field) => (
                 <Select {...field} value={draft.bugPriority} onChange={(event) => set('bugPriority', event.target.value as QuickAddDraft['bugPriority'])}>
                   {BUG_PRIORITIES.map((priority) => (
@@ -281,7 +290,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
         {type === 'note' && (
           <>
             <ProjectReferenceSelect value={draft.projectId} onChange={(value) => set('projectId', value)} />
-            <Field label="Content" optional error={errors.content} hint="Markdown works here too.">
+            <Field label={t('Content')} optional error={errors.content} hint={t('Markdown works here too.')}>
               {(field) => <Textarea {...field} value={draft.content} onChange={(event) => set('content', event.target.value)} className="min-h-20" />}
             </Field>
           </>
@@ -290,7 +299,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
         {type === 'snippet' && (
           <>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Language" error={errors.language}>
+              <Field label={t('Language')} error={errors.language}>
                 {(field) => (
                   <Input {...field} list={`${formId}-languages`} value={draft.language} onChange={(event) => set('language', event.target.value)} placeholder="TypeScript" autoComplete="off" />
                 )}
@@ -302,7 +311,7 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
                 <option key={language} value={language} />
               ))}
             </datalist>
-            <Field label="Code" error={errors.code} hint="Ctrl+Enter saves from here.">
+            <Field label={t('Code')} error={errors.code} hint={t('Ctrl+Enter saves from here.')}>
               {(field) => (
                 <Textarea
                   {...field}
@@ -318,20 +327,20 @@ export function QuickAddDialog({ type, onTypeChange, onClose }: QuickAddDialogPr
 
         <p className="hidden flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-subtle sm:flex" aria-hidden="true">
           <span>
-            <Kbd>Enter</Kbd> create
+            <Kbd>Enter</Kbd> {t('create')}
           </span>
           <span>
-            <Kbd>Shift</Kbd> <Kbd>Enter</Kbd> create &amp; add another
+            <Kbd>Shift</Kbd> <Kbd>Enter</Kbd> {t('create & add another')}
           </span>
           <span>
-            <Kbd>Alt</Kbd> <Kbd>1</Kbd>–<Kbd>5</Kbd> switch type
+            <Kbd>Alt</Kbd> <Kbd>1</Kbd>–<Kbd>5</Kbd> {t('switch type')}
           </span>
           <span>
-            <Kbd>Esc</Kbd> close
+            <Kbd>Esc</Kbd> {t('close')}
           </span>
         </p>
         <p role="status" className="sr-only">
-          {createdCount > 0 ? `${createdCount} created. Ready for the next ${label.toLowerCase()}.` : ''}
+          {createdCount > 0 ? t('{count} created. Ready for the next one.', { count: createdCount }) : ''}
         </p>
       </form>
     </Dialog>

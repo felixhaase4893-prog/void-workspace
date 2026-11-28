@@ -10,6 +10,7 @@ import { snippetInputSchema, type Snippet } from '../../domain/models';
 import { cn } from '../../lib/cn';
 import { useWorkspace, useWorkspaceActions } from '../../state/workspaceContext';
 import { ProjectReferenceSelect } from '../create/ProjectReferenceSelect';
+import { t, tn, translateText } from '../../i18n/translate';
 
 interface SaveDialogProps {
   code: string;
@@ -69,11 +70,11 @@ export function SaveDialog({ code, language, snippetId, onSaved, onClose }: Save
     if (!parsed.success) {
       const issue = parsed.error.issues[0];
       if (issue?.path[0] === 'title') setFieldError(issue.message);
-      else setError(issue?.message ?? 'The snippet could not be saved.');
+      else setError(issue?.message ?? t('The snippet could not be saved.'));
       return;
     }
     if (target === 'existing' && !existing) {
-      setError('Pick the snippet to update.');
+      setError(t('Pick the snippet to update.'));
       return;
     }
     setSaving(true);
@@ -84,7 +85,7 @@ export function SaveDialog({ code, language, snippetId, onSaved, onClose }: Save
         setError(result.error.message);
         return;
       }
-      showToast(`Saved to “${existing.title}”.`, 'success');
+      showToast(t('Saved to “{title}”.', { title: existing.title }), 'success');
       onSaved(existing.id);
       return;
     }
@@ -94,7 +95,7 @@ export function SaveDialog({ code, language, snippetId, onSaved, onClose }: Save
       setError(result.error.message);
       return;
     }
-    showToast('Saved as a new snippet.', 'success');
+    showToast(t('Saved as a new snippet.'), 'success');
     onSaved(result.value);
   };
 
@@ -102,22 +103,22 @@ export function SaveDialog({ code, language, snippetId, onSaved, onClose }: Save
     <Dialog
       open
       onClose={onClose}
-      title="Save code"
-      description="Code is saved as a snippet in your Snippet Vault, optionally linked to a project."
+      title={t('Save code')}
+      description={t('Code is saved as a snippet in your Snippet Vault, optionally linked to a project.')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant="primary" type="submit" form={formId} disabled={saving}>
-            {target === 'existing' ? 'Replace snippet code' : 'Save snippet'}
+            {target === 'existing' ? t('Replace snippet code') : t('Save snippet')}
           </Button>
         </>
       }
     >
       <form id={formId} onSubmit={(event) => void submit(event)} className="space-y-4" noValidate>
         <fieldset>
-          <legend className="mb-2 text-[13px] font-medium text-fg">Save as</legend>
+          <legend className="mb-2 text-[13px] font-medium text-fg">{t('Save as')}</legend>
           <div className="grid grid-cols-2 gap-2">
             {(['new', 'existing'] as const).map((entry) => {
               const disabled = entry === 'existing' && snippets.length === 0;
@@ -131,7 +132,7 @@ export function SaveDialog({ code, language, snippetId, onSaved, onClose }: Save
                   )}
                 >
                   <input type="radio" name="target" value={entry} checked={target === entry} disabled={disabled} onChange={() => setTarget(entry)} className="accent-accent-500" />
-                  {entry === 'new' ? 'New snippet' : 'Existing snippet'}
+                  {entry === 'new' ? t('New snippet') : t('Existing snippet')}
                 </label>
               );
             })}
@@ -140,16 +141,16 @@ export function SaveDialog({ code, language, snippetId, onSaved, onClose }: Save
 
         {target === 'new' ? (
           <>
-            <Field label="Title" error={fieldError}>
-              {(field) => <Input {...field} value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Debounce helper" autoComplete="off" data-autofocus />}
+            <Field label={t('Title')} error={fieldError}>
+              {(field) => <Input {...field} value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('Debounce helper')} autoComplete="off" data-autofocus />}
             </Field>
-            <Field label="Description" optional>
+            <Field label={t('Description')} optional>
               {(field) => <Textarea {...field} value={description} onChange={(event) => setDescription(event.target.value)} className="min-h-16" />}
             </Field>
           </>
         ) : (
           <>
-            <Field label="Snippet" hint="Its code is replaced. Title, description and tags stay as they are.">
+            <Field label={t('Snippet')} hint={t('Its code is replaced. Title, description and tags stay as they are.')}>
               {(field) => (
                 <Select {...field} value={existingId} onChange={(event) => chooseExisting(event.target.value)}>
                   {snippets.map((snippet) => (
@@ -165,9 +166,9 @@ export function SaveDialog({ code, language, snippetId, onSaved, onClose }: Save
 
         <ProjectReferenceSelect value={projectId} onChange={setProjectId} />
         <p className="text-xs text-subtle">
-          Language: <span className="text-muted">{snippetLanguageLabel(language)}</span> · {code.split('\n').length} lines
+          {t('Language')}: <span className="text-muted">{translateText(snippetLanguageLabel(language))}</span> · {tn('{count} line|{count} lines', code.split('\n').length)}
         </p>
-        {error && <Alert tone="danger" title="Not saved">{error}</Alert>}
+        {error && <Alert tone="danger" title={t('Not saved')}>{error}</Alert>}
       </form>
     </Dialog>
   );

@@ -2,6 +2,7 @@ import { AlertCircle, CalendarClock, CalendarDays } from 'lucide-react';
 
 import { Badge, type BadgeTone } from '../../components/ui/Badge';
 import { describeDue, formatDueDate, getDueState, type DueState } from '../../domain/dueDates';
+import { t } from '../../i18n/translate';
 
 const TONES: Record<Exclude<DueState, 'none'>, BadgeTone> = {
   overdue: 'danger',
@@ -25,7 +26,7 @@ interface DueBadgeProps {
 export function DueBadge({ item, today, className }: DueBadgeProps) {
   const state = getDueState(item, today);
   if (state === 'none' || item.dueDate === null) return null;
-  const label = state === 'finished' ? `Due ${formatDueDate(item.dueDate, today)}` : describeDue(item.dueDate, today);
+  const label = state === 'finished' ? t('Due {date}', { date: formatDueDate(item.dueDate, today) }) : describeDue(item.dueDate, today);
   const Icon = state === 'overdue' ? AlertCircle : state === 'today' ? CalendarClock : CalendarDays;
   return (
     <Badge tone={TONES[state]} className={className}>

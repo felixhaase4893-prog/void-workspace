@@ -10,13 +10,14 @@ import { createBackup, parseBackup, serializeBackup, type BackupError, type Pars
 import { useWorkspace } from '../../state/workspaceContext';
 import { ImportDialog } from './ImportDialog';
 import { SettingsSection } from './SettingsSection';
+import { t } from '../../i18n/translate';
 
 function readFileText(file: File): Promise<string> {
   if (typeof file.text === 'function') return file.text();
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error ?? new Error('The file could not be read.'));
+    reader.onerror = () => reject(reader.error ?? new Error(t('The file could not be read.')));
     reader.readAsText(file);
   });
 }
@@ -34,7 +35,7 @@ export function BackupSection() {
 
   const exportNow = () => {
     exportWorkspace(workspace);
-    showToast('Backup downloaded.');
+    showToast(t('Backup downloaded.'));
   };
 
   const onFileChosen = async (event: ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +48,7 @@ export function BackupSection() {
     try {
       text = await readFileText(file);
     } catch {
-      setError({ kind: 'not-json', message: 'The file could not be read.' });
+      setError({ kind: 'not-json', message: t('The file could not be read.') });
       return;
     }
     const parsed = parseBackup(text);
@@ -56,38 +57,40 @@ export function BackupSection() {
   };
 
   return (
-    <SettingsSection title="Backup" description="Move your data between devices or keep a copy you own.">
+    <SettingsSection title={t('Backup')} description={t('Move your data between devices or keep a copy you own.')}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[13px] text-fg">Export</p>
-          <p className="text-xs text-subtle">All projects, tasks, notes and snippets as a versioned JSON file.</p>
+          <p className="text-[13px] text-fg">{t('Export')}</p>
+          <p className="text-xs text-subtle">{t('All projects, tasks, notes and snippets as a versioned JSON file.')}</p>
         </div>
         <Button icon={<Download />} onClick={exportNow}>
-          Export JSON
+          {t('Export JSON')}
         </Button>
       </div>
       <div className="mt-4 flex flex-col gap-4 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-[13px] text-fg">Import</p>
-          <p className="text-xs text-subtle">The file is checked first. You see a summary before anything changes.</p>
+          <p className="text-[13px] text-fg">{t('Import')}</p>
+          <p className="text-xs text-subtle">{t('The file is checked first. You see a summary before anything changes.')}</p>
         </div>
         <Button icon={<Upload />} onClick={() => inputRef.current?.click()}>
-          Import JSON
+          {t('Import JSON')}
         </Button>
-        <input ref={inputRef} type="file" accept="application/json,.json" aria-label="Backup file to import" className="sr-only" tabIndex={-1} onChange={(event) => void onFileChosen(event)} />
+        <input ref={inputRef} type="file" accept="application/json,.json" aria-label={t('Backup file to import')} className="sr-only" tabIndex={-1} onChange={(event) => void onFileChosen(event)} />
       </div>
       {error && (
         <Alert
           tone="danger"
-          title="This file cannot be imported"
+          title={t('This file cannot be imported')}
           className="mt-4"
           action={
             <Button size="sm" variant="ghost" onClick={() => setError(null)}>
-              Dismiss
+              {t('Dismiss')}
             </Button>
           }
         >
-          <p>{error.message} Your data was not changed.</p>
+          <p>
+            {error.message} {t('Your data was not changed.')}
+          </p>
           {error.kind === 'invalid' && error.issues.length > 0 && (
             <ul className="mt-1.5 list-disc space-y-0.5 pl-4 font-mono text-xs">
               {error.issues.map((issue) => (

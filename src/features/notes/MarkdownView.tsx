@@ -3,6 +3,7 @@ import { useMemo, type ReactNode } from 'react';
 import { CodeBlock } from '../../components/code/CodeBlock';
 import { parseMarkdown, type MarkdownBlock, type MarkdownInline } from '../../domain/markdown';
 import { cn } from '../../lib/cn';
+import { t } from '../../i18n/translate';
 
 interface MarkdownViewProps {
   source: string;
@@ -60,7 +61,7 @@ function renderBlocks(blocks: MarkdownBlock[], compact: boolean, tight: boolean)
         const items = block.items.map((item, itemIndex) => (
           <li key={itemIndex} className={cn('min-w-0', item.checked !== null && 'flex items-start gap-2')}>
             {item.checked !== null && (
-              <input type="checkbox" checked={item.checked} readOnly disabled aria-label={item.checked ? 'Done' : 'Not done'} className="mt-[0.3em] shrink-0 accent-accent-500" />
+              <input type="checkbox" checked={item.checked} readOnly disabled aria-label={item.checked ? t('Done') : t('Not done')} className="mt-[0.3em] shrink-0 accent-accent-500" />
             )}
             <div className={cn('min-w-0', item.checked === true && 'text-subtle line-through')}>{renderBlocks(item.children, compact, true)}</div>
           </li>

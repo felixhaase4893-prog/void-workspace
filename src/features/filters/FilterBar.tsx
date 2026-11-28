@@ -18,16 +18,20 @@ import { MAX_QUERY_LENGTH, parseQuery } from '../../domain/search';
 import { SORT_KEYS, getSortLabel, isSortKeyFor } from '../../domain/sorting';
 import { cn } from '../../lib/cn';
 import type { ListFilterState } from './listFiltersContext';
+import { type MessageKey, t, tn } from '../../i18n/translate';
 
-const NOUNS: Record<EntityType, [singular: string, plural: string]> = {
-  project: ['project', 'projects'],
-  task: ['task', 'tasks'],
-  note: ['note', 'notes'],
-  snippet: ['snippet', 'snippets'],
-  bug: ['bug', 'bugs'],
+/** The plural noun for sentences ('Search tasks…') and the counted form ('3 tasks'). */
+const NOUNS: Record<EntityType, [plural: MessageKey, counted: MessageKey]> = {
+  project: ['projects', '{count} project|{count} projects'],
+  task: ['tasks', '{count} task|{count} tasks'],
+  note: ['notes', '{count} note|{count} notes'],
+  snippet: ['snippets', '{count} snippet|{count} snippets'],
+  bug: ['bugs', '{count} bug|{count} bugs'],
 };
 
-const FIELD_HINTS: Partial<Record<FilterField, string>> = {
+const GROUP_LABELS: Record<EntityType, MessageKey> = { project: 'Project filters', task: 'Task filters', note: 'Note filters', snippet: 'Snippet filters', bug: 'Bug filters' };
+
+const FIELD_HINTS: Partial<Record<FilterField, MessageKey>> = {
   tag: 'Shows items with at least one of the selected tags.',
 };
 
@@ -47,7 +51,8 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const [singular, plural] = NOUNS[type];
+  const plural = t(NOUNS[type][0]);
+  const counted = (count: number) => tn(NOUNS[type][1], count);
   const criteriaCount = countActiveFilters({ ...filters, favoritesOnly: false, query: '' });
 
   const closeOnEscape = (event: KeyboardEvent) => {
@@ -63,7 +68,7 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
   const hasQuery = parseQuery(filters.query).length > 0;
 
   return (
-    <section aria-label={`Filter ${plural}`} className="mb-4 space-y-3">
+    <section aria-label={t('Filter {items}', { items: plural })} className="mb-4 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative min-w-0 flex-[1_1_14rem]">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-subtle" aria-hidden="true" />
@@ -75,8 +80,8 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
               const query = event.target.value;
               update((current) => ({ ...current, query }));
             }}
-            aria-label={`Search ${plural}`}
-            placeholder={`Search ${plural}…`}
+            aria-label={t('Search {items}', { items: plural })}
+            placeholder={t('Search {items}…', { items: plural })}
             className="h-9 w-full rounded-lg border border-line bg-canvas pr-3 pl-9 text-[13px] text-fg transition-colors placeholder:text-subtle hover:border-line-strong focus:border-accent-400 focus:ring-2 focus:ring-accent-500/25 focus:outline-none"
           />
         </div>
@@ -87,7 +92,7 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
           className={cn('h-9', filters.favoritesOnly && 'border-accent-500/50 bg-accent-500/15 text-accent-200 hover:bg-accent-500/20')}
           onClick={() => update((current) => ({ ...current, favoritesOnly: !current.favoritesOnly }))}
         >
-          Favorites only
+          {t('Favorites only')}
         </Button>
         <Button
           ref={toggleRef}
@@ -102,7 +107,7 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
           {criteriaCount > 0 && (
             <Badge tone="accent">
               {criteriaCount}
-              <span className="sr-only"> active</span>
+              <span className="sr-only"> {t('active')}</span>
             </Badge>
           )}
         </Button>
@@ -114,8 +119,8 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
               const next = event.target.value;
               if (isSortKeyFor(type, next)) setSort(next);
             }}
-            aria-label={`Sort ${plural}`}
-            title="Sort order"
+            aria-label={t('Sort {items}', { items: plural })}
+            title={t('Sort order')}
             className="h-9 max-w-[13rem] cursor-pointer appearance-none truncate rounded-lg border border-line-strong bg-canvas pr-8 pl-8 text-xs font-medium text-muted transition-colors hover:border-subtle/60 hover:text-fg focus:border-accent-400 focus:ring-2 focus:ring-accent-500/25 focus:outline-none"
           >
             {SORT_KEYS[type].map((key) => (
@@ -132,7 +137,7 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
         <div
           id={panelId}
           role="group"
-          aria-label={`${singular[0]?.toUpperCase()}${singular.slice(1)} filters`}
+          aria-label={t(GROUP_LABELS[type])}
           onKeyDown={closeOnEscape}
           className="animate-fade-in grid gap-4 rounded-card border border-line bg-surface p-4 sm:grid-cols-2"
         >
@@ -145,7 +150,7 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
                 <legend className="mb-2 text-xs font-medium text-muted">{FILTER_FIELD_LABELS[field]}</legend>
                 {fieldOptions.length === 0 ? (
                   <p className="text-xs text-subtle">
-                    {field === 'tag' ? `No ${plural} have tags yet.` : field === 'project' ? `No ${plural} yet.` : 'Nothing to filter by yet.'}
+                    {field === 'tag' ? t('No {items} have tags yet.', { items: plural }) : field === 'project' ? t('No {items} yet.', { items: plural }) : t('Nothing to filter by yet.')}
                   </p>
                 ) : (
                   <ul className="scrollbar-thin flex max-h-36 flex-wrap gap-1.5 overflow-y-auto">
@@ -180,12 +185,12 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
 
       <div className="flex flex-wrap items-center gap-1.5 text-xs">
         <p aria-live="polite" className="mr-1 text-subtle">
-          {active ? `Showing ${visible.length} of ${total} ${total === 1 ? singular : plural}` : `${total} ${total === 1 ? singular : plural}`}
+          {active ? t('Showing {visible} of {items}', { visible: visible.length, items: counted(total) }) : counted(total)}
         </p>
         {active && (
-          <ul aria-label="Active filters" className="flex min-w-0 flex-wrap gap-1.5">
+          <ul aria-label={t('Active filters')} className="flex min-w-0 flex-wrap gap-1.5">
             {filters.favoritesOnly && (
-              <ActiveChip label="Favorites only" onRemove={() => update((current) => ({ ...current, favoritesOnly: false }))} />
+              <ActiveChip label={t('Favorites only')} onRemove={() => update((current) => ({ ...current, favoritesOnly: false }))} />
             )}
             {hasQuery && <ActiveChip label={`Search: “${filters.query.trim()}”`} onRemove={() => update((current) => ({ ...current, query: '' }))} />}
             {chips.map((chip) => (
@@ -199,7 +204,7 @@ export function FilterBar<T extends EntityType>({ state }: { state: ListFilterSt
         )}
         {active && (
           <button type="button" onClick={reset} className="rounded px-1 text-xs font-medium text-accent-300 hover:text-accent-200 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none">
-            Reset all filters
+            {t('Reset all filters')}
           </button>
         )}
       </div>
@@ -216,8 +221,8 @@ function ActiveChip({ label, onRemove }: { label: string; onRemove: () => void }
         </span>
         <button
           type="button"
-          aria-label={`Remove filter ${label}`}
-          title="Remove filter"
+          aria-label={t('Remove filter {label}', { label })}
+          title={t('Remove filter')}
           onClick={onRemove}
           className="grid size-5 shrink-0 place-items-center rounded text-accent-300 hover:bg-accent-500/20 hover:text-fg focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
         >
@@ -230,15 +235,15 @@ function ActiveChip({ label, onRemove }: { label: string; onRemove: () => void }
 
 /** Shown instead of the list when items exist but none match the filters. */
 export function NoMatches<T extends EntityType>({ state }: { state: ListFilterState<T> }) {
-  const plural = NOUNS[state.type][1];
+  const plural = t(NOUNS[state.type][0]);
   return (
     <EmptyState
       icon={SearchX}
-      title={`No ${plural} match your filters`}
-      description={`You have ${state.total} ${state.total === 1 ? NOUNS[state.type][0] : plural}, but none fit everything that is selected. Remove a filter or start over.`}
+      title={t('No {items} match your filters', { items: plural })}
+      description={t('You have {items}, but none fit everything that is selected. Remove a filter or start over.', { items: tn(NOUNS[state.type][1], state.total) })}
       action={
         <Button size="sm" onClick={state.reset}>
-          Reset all filters
+          {t('Reset all filters')}
         </Button>
       }
     />

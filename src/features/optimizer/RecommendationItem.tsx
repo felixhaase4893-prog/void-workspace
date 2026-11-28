@@ -5,11 +5,12 @@ import { Badge, type BadgeTone } from '../../components/ui/Badge';
 import { REVERSIBILITY_LABELS, SAFETY_LABELS } from '../../domain/optimizer/catalog';
 import type { OptimizationRecommendation, Overlap, SafetyLevel } from '../../domain/optimizer/models';
 import { isSelectable } from '../../domain/optimizer/safety';
-import { formatBytes } from '../../domain/optimizer/sizes';
+import { formatBytes } from './format';
 import { cn } from '../../lib/cn';
 import { OpenTargetButton } from './OpenTargetButton';
+import { formatNumber, t, tn, translateText } from '../../i18n/translate';
 
-/** DOM id of a recommendation, used by "Go to action" jumps. */
+/** DOM id of a recommendation, used by t('Go to action') jumps. */
 export const recommendationAnchor = (id: string) => `optimizer-rec-${id.replace(/[^a-z0-9-]/gi, '-')}`;
 
 export const SAFETY_TONES: Record<SafetyLevel, BadgeTone> = { safe: 'success', caution: 'warning', blocked: 'danger' };
@@ -17,11 +18,11 @@ const SAFETY_ICONS = { safe: ShieldCheck, caution: ShieldAlert, blocked: ShieldX
 
 /** "1.2 GB potentially cleanable", "about 800 MB RAM in use", "1 startup entry" … */
 export function describeImpact(recommendation: OptimizationRecommendation): string {
-  if (recommendation.estimatedDiskBytes > 0) return `${formatBytes(recommendation.estimatedDiskBytes)} potentially cleanable`;
-  if (recommendation.estimatedMemoryBytes > 0) return `about ${formatBytes(recommendation.estimatedMemoryBytes)} RAM in use`;
-  if (recommendation.affects.startupEntries > 0) return `${recommendation.affects.startupEntries} startup entry`;
-  if (recommendation.affects.powerSettings > 0) return 'Power setting';
-  return `${recommendation.targetCount} items`;
+  if (recommendation.estimatedDiskBytes > 0) return t('{size} potentially cleanable', { size: formatBytes(recommendation.estimatedDiskBytes) });
+  if (recommendation.estimatedMemoryBytes > 0) return t('about {size} RAM in use', { size: formatBytes(recommendation.estimatedMemoryBytes) });
+  if (recommendation.affects.startupEntries > 0) return tn('{count} startup entry|{count} startup entries', recommendation.affects.startupEntries);
+  if (recommendation.affects.powerSettings > 0) return t('Power setting');
+  return tn('{count} item|{count} items', recommendation.targetCount);
 }
 
 interface RecommendationItemProps {
@@ -62,25 +63,25 @@ export function RecommendationItem({ recommendation, selected, overlaps, titleOf
               aria-describedby={`${checkboxId}-description`}
             />
           ) : (
-            <Lock className="size-[18px] text-subtle" aria-label="Not selectable" />
+            <Lock className="size-[18px] text-subtle" aria-label={t('Not selectable')} />
           )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <label htmlFor={selectable ? checkboxId : undefined} className={cn('text-[13px] font-medium [overflow-wrap:anywhere] text-fg', selectable && 'cursor-pointer')}>
-              {recommendation.title}
+              {translateText(recommendation.title)}
             </label>
             <Badge tone={SAFETY_TONES[recommendation.safety]}>
               <SafetyIcon className="size-3" aria-hidden="true" />
-              {SAFETY_LABELS[recommendation.safety]}
+              {translateText(SAFETY_LABELS[recommendation.safety])}
             </Badge>
-            {recommendation.requiresAdmin && <Badge tone="neutral">Admin needed later</Badge>}
-            {recommendation.status === 'stale' && <Badge tone="warning">Outdated</Badge>}
+            {recommendation.requiresAdmin && <Badge tone="neutral">{t('Admin needed later')}</Badge>}
+            {recommendation.status === 'stale' && <Badge tone="warning">{t('Outdated')}</Badge>}
           </div>
           <p id={`${checkboxId}-description`} className="mt-0.5 text-xs [overflow-wrap:anywhere] text-muted">
-            {recommendation.description}
+            {translateText(recommendation.description)}
           </p>
-          {recommendation.statusReason && <p className="mt-1 text-xs text-warning">{recommendation.statusReason}</p>}
+          {recommendation.statusReason && <p className="mt-1 text-xs text-warning">{translateText(recommendation.statusReason)}</p>}
           {recommendation.openTarget && (
             <div className="mt-2">
               <OpenTargetButton target={recommendation.openTarget} variant="ghost" />
@@ -96,7 +97,7 @@ export function RecommendationItem({ recommendation, selected, overlaps, titleOf
             onClick={() => setOpen((value) => !value)}
             className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-muted hover:bg-raised hover:text-fg"
           >
-            Details
+            {t('Details')}
             <ChevronDown className={cn('size-3.5 transition-transform', open && 'rotate-180')} aria-hidden="true" />
           </button>
         </div>
@@ -104,46 +105,46 @@ export function RecommendationItem({ recommendation, selected, overlaps, titleOf
       {open && (
         <div id={detailsId} className="border-t border-line px-4 py-3">
           <dl className="grid gap-3 text-xs sm:grid-cols-2">
-            <Detail term="What was found?">{preview.found}</Detail>
-            <Detail term="Why is this recommended?">{preview.why}</Detail>
-            <Detail term="What would change?">{preview.changes}</Detail>
-            <Detail term="What are the risks?">{preview.risks}</Detail>
-            <Detail term="Can the change be undone?">
-              <span className="font-medium text-fg">{REVERSIBILITY_LABELS[preview.reversible]}.</span> {preview.reversibleNote}
+            <Detail term={t('What was found?')}>{translateText(preview.found)}</Detail>
+            <Detail term={t('Why is this recommended?')}>{translateText(preview.why)}</Detail>
+            <Detail term={t('What would change?')}>{translateText(preview.changes)}</Detail>
+            <Detail term={t('What are the risks?')}>{translateText(preview.risks)}</Detail>
+            <Detail term={t('Can the change be undone?')}>
+              <span className="font-medium text-fg">{translateText(REVERSIBILITY_LABELS[preview.reversible])}.</span> {translateText(preview.reversibleNote)}
             </Detail>
             {preview.sampleTargets.length > 0 && (
-              <Detail term="Examples">
+              <Detail term={t('Examples')}>
                 <ul className="space-y-0.5 font-mono text-[11px]">
                   {preview.sampleTargets.map((target) => (
                     <li key={target} className="[overflow-wrap:anywhere]">
                       {target}
                     </li>
                   ))}
-                  {preview.moreTargets > 0 && <li className="font-sans text-subtle">… and {preview.moreTargets.toLocaleString('en-US')} more</li>}
+                  {preview.moreTargets > 0 && <li className="font-sans text-subtle">{t('… and {count} more', { count: formatNumber(preview.moreTargets) })}</li>}
                 </ul>
               </Detail>
             )}
           </dl>
           {preview.manualSteps.length > 0 && (
             <div className="mt-3 text-xs">
-              <p className="font-medium text-fg">How to do it yourself</p>
+              <p className="font-medium text-fg">{t('How to do it yourself')}</p>
               <ol className="mt-1 list-decimal space-y-0.5 pl-5 leading-relaxed text-muted">
                 {preview.manualSteps.map((step) => (
-                  <li key={step}>{step}</li>
+                  <li key={step}>{translateText(step)}</li>
                 ))}
               </ol>
             </div>
           )}
           {myOverlaps.length > 0 && (
             <p className="mt-3 text-xs text-subtle">
-              Overlaps with{' '}
-              {myOverlaps
-                .map((overlap) => {
-                  const other = overlap.recommendationIds.find((id) => id !== recommendation.id) ?? '';
-                  return `"${titleOf(other)}" (${overlap.sharedCount} shared items, ${formatBytes(overlap.sharedDiskBytes)})`;
-                })
-                .join(', ')}
-              . Shared items are counted only once in the total.
+              {t('Overlaps with {list}. Shared items are counted only once in the total.', {
+                list: myOverlaps
+                  .map((overlap) => {
+                    const other = overlap.recommendationIds.find((id) => id !== recommendation.id) ?? '';
+                    return t('"{title}" ({count} shared items, {size})', { title: translateText(titleOf(other)), count: overlap.sharedCount, size: formatBytes(overlap.sharedDiskBytes) });
+                  })
+                  .join(', '),
+              })}
             </p>
           )}
         </div>

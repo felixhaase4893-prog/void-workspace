@@ -103,7 +103,7 @@ Das gespeicherte Dokument enthält `schemaVersion` (aktuell `4`; v1 → v2 ergä
 
 ## Annahmen und Entscheidungen
 
-- **UI-Sprache Englisch**, weil die Navigationsbegriffe englisch vorgegeben waren und VOID international veröffentlicht werden soll. Texte sind zentral genug, um später i18n einzuführen.
+- **Mehrsprachig seit 4.5** (Englisch, Spanisch, Chinesisch vereinfacht, Deutsch), ohne Bibliothek: Der englische Text ist der Schlüssel (`src/i18n/messages/*.ts`, je Eintrag `[es, zh, de]`), `t()`/`tn()` übersetzen, `localized()` baut Label-Maps mit Gettern. Die aktive Sprache liegt außerhalb von React (`translate.ts`), damit auch reine Funktionen übersetzen; `I18nBoundary` setzt sie und `<html lang>`, `RemountOnLanguageChange` baut die Seiten beim Wechsel neu auf, ohne Provider-Zustand zu verlieren. Code-Tester-Befunde und Optimizer-Texte entstehen weiter auf Englisch (die Engine läuft auch im Desktop-Backend, das keinen Katalog mitbringt) und werden erst beim Anzeigen mit `translateText()` übersetzt, inklusive Platzhaltern, Zahlen und Größen. Tests prüfen Platzhalter, Pluralformen, doppelte Schlüssel und dass jeder Engine-Text eine Übersetzung hat.
 - **Erstellen, Bearbeiten und Löschen** laufen für alle vier Entitäten über einen gemeinsamen `EntityDialogProvider` (`features/create`), damit jede Seite, auch die Projekt-Detailseite, dieselben Formulare und Bestätigungsdialoge nutzt. Rückmeldungen erscheinen als Toasts (`components/ui/ToastProvider.tsx`).
 - **Projekt löschen** fragt, ob zugehörige Aufgaben, Notizen und Snippets behalten (dann ohne Projekt) oder mitgelöscht werden. Standard ist Behalten.
 - **Kein Rückgängig** nach dem Löschen; der Bestätigungsdialog verweist auf den Export.

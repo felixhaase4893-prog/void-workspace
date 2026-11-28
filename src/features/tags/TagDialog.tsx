@@ -11,6 +11,7 @@ import { cn } from '../../lib/cn';
 import { useWorkspace, useWorkspaceActions } from '../../state/workspaceContext';
 import { TagChip } from './TagChip';
 import { TAG_COLOR_LABELS, TAG_SWATCH_CLASSES } from './tagColors';
+import { t, tn } from '../../i18n/translate';
 
 interface TagDialogProps {
   /** Without a tag the dialog creates one. */
@@ -48,22 +49,22 @@ export function TagDialog({ tag, usageCount = 0, onClose }: TagDialogProps) {
         setError(result.error.message);
         return;
       }
-      showToast(`Not saved: ${result.error.message}`, 'danger');
+      showToast(t('Not saved: {reason}', { reason: result.error.message }), 'danger');
     } else {
-      showToast(tag ? 'Tag updated.' : `Tag “${valid.value}” created.`);
+      showToast(tag ? t('Tag updated.') : t('Tag “{name}” created.', { name: valid.value }));
     }
     onClose();
   };
 
-  const preview = normalizeTagName(name) || 'Tag name';
+  const preview = normalizeTagName(name) || t('Tag name');
 
   return (
-    <Dialog open onClose={onClose} title={tag ? 'Edit tag' : 'New tag'} description={tag ? undefined : 'Use tags to group anything: Frontend, Bug, Idea, Later…'}>
+    <Dialog open onClose={onClose} title={tag ? t('Edit tag') : t('New tag')} description={tag ? undefined : t('Use tags to group anything: Frontend, Bug, Idea, Later…')}>
       <form noValidate onSubmit={(event) => void submit(event)} className="space-y-4">
         <Field
-          label="Name"
+          label={t('Name')}
           error={error ?? undefined}
-          hint={tag && usageCount > 0 ? `Renaming keeps the tag on all ${usageCount} ${usageCount === 1 ? 'item' : 'items'}.` : `Up to ${MAX_TAG_NAME_LENGTH} characters.`}
+          hint={tag && usageCount > 0 ? tn('Renaming keeps the tag on all {count} item.|Renaming keeps the tag on all {count} items.', usageCount) : `Up to ${MAX_TAG_NAME_LENGTH} characters.`}
         >
           {(field) => (
             <Input
@@ -75,14 +76,14 @@ export function TagDialog({ tag, usageCount = 0, onClose }: TagDialogProps) {
                 setName(event.target.value);
                 setError(null);
               }}
-              placeholder="e.g. Performance"
+              placeholder={t('e.g. Performance')}
               autoComplete="off"
             />
           )}
         </Field>
 
         <fieldset>
-          <legend className="mb-2 text-[13px] font-medium text-fg">Colour</legend>
+          <legend className="mb-2 text-[13px] font-medium text-fg">{t('Colour')}</legend>
           <div className="flex flex-wrap gap-2">
             {COLOR_CHOICES.map((choice) => {
               const key = choice ?? 'default';
@@ -108,15 +109,15 @@ export function TagDialog({ tag, usageCount = 0, onClose }: TagDialogProps) {
         </fieldset>
 
         <div className="flex items-center gap-2 rounded-lg bg-raised px-3 py-2.5 text-xs text-subtle">
-          Preview <TagChip name={preview} color={color} />
+          {t('Preview')} <TagChip name={preview} color={color} />
         </div>
 
         <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
           <Button variant="ghost" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button type="submit" variant="primary" disabled={pending}>
-            {pending ? 'Saving…' : tag ? 'Save changes' : 'Create tag'}
+            {pending ? t('Saving…') : tag ? t('Save changes') : t('Create tag')}
           </Button>
         </div>
       </form>

@@ -4,6 +4,7 @@ import { IconButton } from '../../components/ui/Button';
 import { cn } from '../../lib/cn';
 import type { EntityType } from '../../domain/models';
 import { useEntityDialogs, type DeleteDialogOptions } from './entityDialogContext';
+import { t } from '../../i18n/translate';
 
 interface ItemActionsProps {
   type: EntityType;
@@ -19,11 +20,11 @@ export function ItemActions({ type, id, title, deleteOptions, className }: ItemA
   const { openEditDialog, openDeleteDialog } = useEntityDialogs();
   return (
     <div className={cn('flex shrink-0 items-center', className)}>
-      <IconButton label={`Edit ${title}`} className="size-8 [&_svg]:size-4" onClick={() => openEditDialog(type, id)}>
+      <IconButton label={t('Edit {title}', { title })} className="size-8 [&_svg]:size-4" onClick={() => openEditDialog(type, id)}>
         <Pencil />
       </IconButton>
       <IconButton
-        label={`Delete ${title}`}
+        label={t('Delete {title}', { title })}
         className="size-8 hover:text-danger [&_svg]:size-4"
         onClick={() => openDeleteDialog(type, id, deleteOptions)}
       >

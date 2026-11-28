@@ -10,6 +10,7 @@ import { diffLines, summarizeDiff } from '../../domain/code/diff';
 import { formatCode, type FormatOutcome } from '../../domain/code/format';
 import { getCodeLanguage, type CodeLanguageId } from '../../domain/code/languages';
 import { cn } from '../../lib/cn';
+import { t, translateText } from '../../i18n/translate';
 
 interface FormatDialogProps {
   code: string;
@@ -46,17 +47,17 @@ export function FormatDialog({ code, language, onApply, onClose }: FormatDialogP
     <Dialog
       open
       onClose={onClose}
-      title="Format code"
-      description={`Preview for ${getCodeLanguage(language).label}. Nothing changes until you apply it.`}
+      title={t('Format code')}
+      description={t('Preview for {language}. Nothing changes until you apply it.', { language: translateText(getCodeLanguage(language).label) })}
       className="sm:max-w-3xl"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            {canApply ? 'Cancel' : 'Close'}
+            {canApply ? t('Cancel') : t('Close')}
           </Button>
           {canApply && (
             <Button variant="primary" onClick={() => onApply(outcome.code)} data-autofocus>
-              Apply formatting
+              {t('Apply formatting')}
             </Button>
           )}
         </>
@@ -64,25 +65,25 @@ export function FormatDialog({ code, language, onApply, onClose }: FormatDialogP
     >
       {!outcome ? (
         <div className="flex items-center gap-3 py-8 text-[13px] text-muted">
-          <Spinner /> Formatting…
+          <Spinner /> {t('Formatting…')}
         </div>
       ) : outcome.status === 'unsupported' ? (
-        <Alert tone="info" title="Formatting is not available">
-          {outcome.reason}
+        <Alert tone="info" title={t('Formatting is not available')}>
+          {translateText(outcome.reason)}
         </Alert>
       ) : outcome.status === 'failed' ? (
-        <Alert tone="danger" title={outcome.line ? `Formatting stopped at line ${outcome.line}` : 'Formatting failed'}>
-          {outcome.message} Your code was not changed. Fix the syntax error first, a Deep Scan shows where.
+        <Alert tone="danger" title={outcome.line ? t('Formatting stopped at line {line}', { line: outcome.line }) : t('Formatting failed')}>
+          {translateText(outcome.message)} {t('Your code was not changed. Fix the syntax error first, a Deep Scan shows where.')}
         </Alert>
       ) : !outcome.changed ? (
         <div className="flex items-center gap-3 rounded-xl border border-success/25 bg-success/[0.06] px-4 py-3 text-[13px] text-success" role="status">
           <CircleCheck className="size-4 shrink-0" aria-hidden="true" />
-          The code is already formatted. Nothing to change.
+          {t('The code is already formatted. Nothing to change.')}
         </div>
       ) : (
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div role="tablist" aria-label="Preview" className="inline-flex rounded-lg border border-line bg-canvas p-0.5">
+            <div role="tablist" aria-label={t('Preview')} className="inline-flex rounded-lg border border-line bg-canvas p-0.5">
               {(['changes', 'formatted'] as const).map((entry) => (
                 <button
                   key={entry}
@@ -92,16 +93,16 @@ export function FormatDialog({ code, language, onApply, onClose }: FormatDialogP
                   onClick={() => setView(entry)}
                   className={cn('h-7 rounded-md px-3 text-xs font-medium transition-colors', view === entry ? 'bg-raised text-fg' : 'text-muted hover:text-fg')}
                 >
-                  {entry === 'changes' ? 'Changes' : 'Formatted code'}
+                  {entry === 'changes' ? t('Changes') : t('Formatted code')}
                 </button>
               ))}
             </div>
             <p className="text-xs text-subtle" aria-live="polite">
-              <span className="text-success">+{summary.added}</span> <span className="text-danger">−{summary.removed}</span> lines
+              <span className="text-success">+{summary.added}</span> <span className="text-danger">−{summary.removed}</span> {t('lines')}
             </p>
           </div>
           {view === 'changes' ? (
-            <div className="scrollbar-thin max-h-[52dvh] overflow-auto rounded-lg border border-line bg-canvas py-2 font-mono text-[12px] leading-relaxed" aria-label="Changes">
+            <div className="scrollbar-thin max-h-[52dvh] overflow-auto rounded-lg border border-line bg-canvas py-2 font-mono text-[12px] leading-relaxed" aria-label={t('Changes')}>
               <table className="w-full border-collapse">
                 <tbody>
                   {diff.map((line, index) => (
@@ -126,7 +127,7 @@ export function FormatDialog({ code, language, onApply, onClose }: FormatDialogP
           )}
           <p className="flex items-start gap-2 text-xs text-subtle">
             <CircleAlert className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-            After applying, “Restore original” or Ctrl+Z brings the previous version back.
+            {t('After applying, “Restore original” or Ctrl+Z brings the previous version back.')}
           </p>
         </div>
       )}

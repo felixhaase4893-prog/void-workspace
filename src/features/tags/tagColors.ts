@@ -1,4 +1,5 @@
 import type { TagColor } from '../../domain/models';
+import { localized } from '../../i18n/translate';
 
 /**
  * Tag colours as complete class names (Tailwind only ships classes it can see
@@ -31,7 +32,7 @@ export const TAG_SWATCH_CLASSES: Record<TagColor | 'default', string> = {
   slate: 'bg-slate-400',
 };
 
-export const TAG_COLOR_LABELS: Record<TagColor | 'default', string> = {
+export const TAG_COLOR_LABELS = localized<TagColor | 'default'>({
   default: 'Default',
   violet: 'Violet',
   blue: 'Blue',
@@ -42,4 +43,4 @@ export const TAG_COLOR_LABELS: Record<TagColor | 'default', string> = {
   red: 'Red',
   pink: 'Pink',
   slate: 'Slate',
-};
+});

@@ -68,8 +68,8 @@ export function formatNumber(value: number): string {
   return value.toLocaleString(NUMBER_LOCALE, { maximumFractionDigits: 1 });
 }
 
-/** "1.8 GB" – binary steps (as Windows Explorer shows sizes). */
-export function formatBytes(value: number): string {
+/** "1.8 GB" – binary steps (as Windows Explorer shows sizes). The page passes its own locale; the engine always writes English. */
+export function formatBytes(value: number, locale: string = NUMBER_LOCALE): string {
   if (!Number.isFinite(value) || value <= 0) return '0 B';
   let unit = 0;
   let amount = value;
@@ -78,7 +78,7 @@ export function formatBytes(value: number): string {
     unit += 1;
   }
   const digits = unit === 0 ? 0 : amount >= 100 ? 0 : 1;
-  return `${amount.toLocaleString(NUMBER_LOCALE, { minimumFractionDigits: digits, maximumFractionDigits: digits })} ${UNITS[unit]}`;
+  return `${amount.toLocaleString(locale, { minimumFractionDigits: digits, maximumFractionDigits: digits })} ${UNITS[unit]}`;
 }
 
 /** Small deterministic hash (FNV-1a, 32 bit, base 36) for stable ids. Not for security. */

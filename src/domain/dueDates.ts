@@ -1,4 +1,5 @@
 import { isValidDueDate, type Bug, type Task, type Workspace } from './models';
+import { dateTimeFormat, t, tn } from '../i18n/translate';
 
 /**
  * Due dates are calendar days (`YYYY-MM-DD`) in the user's local time zone.
@@ -52,8 +53,8 @@ export function getDueState(item: { dueDate?: string | null; status: string }, t
   return 'later';
 }
 
-const weekdayFormatter = new Intl.DateTimeFormat('en', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
-const fullFormatter = new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const weekdayFormatter = { format: (date: Date) => dateTimeFormat({ weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(date) };
+const fullFormatter = { format: (date: Date) => dateTimeFormat({ day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }).format(date) };
 
 /** "Mon, Dec 7" (or "Dec 7, 2027" in another year), without any time zone shift. */
 export function formatDueDate(key: string, today: string): string {
@@ -61,15 +62,14 @@ export function formatDueDate(key: string, today: string): string {
   return key.slice(0, 4) === today.slice(0, 4) ? weekdayFormatter.format(date) : fullFormatter.format(date);
 }
 
-/** A short, human label: "Due today", "Due tomorrow", "Overdue by 3 days", "Due in 5 days", "Due Mon, Dec 7". */
+/** A short, human label: t('Due today'), t('Due tomorrow'), "Overdue by 3 days", "Due in 5 days", "Due Mon, Dec 7". */
 export function describeDue(key: string, today: string): string {
   const days = daysBetween(today, key);
-  if (days === 0) return 'Due today';
-  if (days === 1) return 'Due tomorrow';
-  if (days === -1) return 'Overdue by 1 day';
-  if (days < 0) return `Overdue by ${-days} days`;
-  if (days <= UPCOMING_DAYS) return `Due in ${days} days`;
-  return `Due ${formatDueDate(key, today)}`;
+  if (days === 0) return t('Due today');
+  if (days === 1) return t('Due tomorrow');
+  if (days < 0) return tn('Overdue by {count} day|Overdue by {count} days', -days);
+  if (days <= UPCOMING_DAYS) return tn('Due in {count} day|Due in {count} days', days);
+  return t('Due {date}', { date: formatDueDate(key, today) });
 }
 
 export interface DueOverview {

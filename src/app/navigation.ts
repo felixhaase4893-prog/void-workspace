@@ -1,6 +1,7 @@
 import { Bug, ChartColumn, Code2, FlaskConical, FolderKanban, Gauge, LayoutDashboard, ListChecks, Settings, StickyNote, type LucideIcon } from 'lucide-react';
 
 import type { EntityType } from '../domain/models';
+import { t, type MessageKey } from '../i18n/translate';
 
 export interface NavigationItem {
   to: string;
@@ -10,17 +11,29 @@ export interface NavigationItem {
   shortcut?: number;
 }
 
+/** The label is read on every render, so it follows the active language. */
+function item(to: string, labelKey: MessageKey, icon: LucideIcon, shortcut?: number): NavigationItem {
+  return {
+    to,
+    icon,
+    ...(shortcut === undefined ? {} : { shortcut }),
+    get label() {
+      return t(labelKey);
+    },
+  };
+}
+
 export const NAVIGATION: NavigationItem[] = [
-  { to: '/', label: 'Dashboard', shortcut: 1, icon: LayoutDashboard },
-  { to: '/projects', label: 'Projects', shortcut: 2, icon: FolderKanban },
-  { to: '/tasks', label: 'Tasks', shortcut: 3, icon: ListChecks },
-  { to: '/bugs', label: 'Bugs', shortcut: 6, icon: Bug },
-  { to: '/notes', label: 'Notes', shortcut: 4, icon: StickyNote },
-  { to: '/snippets', label: 'Snippet Vault', shortcut: 5, icon: Code2 },
-  { to: '/code-tester', label: 'Code Tester', shortcut: 8, icon: FlaskConical },
-  { to: '/statistics', label: 'Statistics', shortcut: 9, icon: ChartColumn },
-  { to: '/optimizer', label: 'PC Optimizer', icon: Gauge },
-  { to: '/settings', label: 'Settings', shortcut: 7, icon: Settings },
+  item('/', 'Dashboard', LayoutDashboard, 1),
+  item('/projects', 'Projects', FolderKanban, 2),
+  item('/tasks', 'Tasks', ListChecks, 3),
+  item('/bugs', 'Bugs', Bug, 6),
+  item('/notes', 'Notes', StickyNote, 4),
+  item('/snippets', 'Snippet Vault', Code2, 5),
+  item('/code-tester', 'Code Tester', FlaskConical, 8),
+  item('/statistics', 'Statistics', ChartColumn, 9),
+  item('/optimizer', 'PC Optimizer', Gauge),
+  item('/settings', 'Settings', Settings, 7),
 ];
 
 export const ENTITY_ROUTES: Record<EntityType, string> = {

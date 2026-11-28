@@ -8,6 +8,7 @@ import { cn } from '../../lib/cn';
 import { useWorkspace } from '../../state/workspaceContext';
 import { TagChip } from './TagChip';
 import { useTagLookup } from './useTags';
+import { t, tn } from '../../i18n/translate';
 
 /** Suggestions shown at once; typing narrows the list down further. */
 const MAX_SUGGESTIONS = 50;
@@ -23,7 +24,7 @@ interface TagFieldProps {
 /** The one tag picker used by every form. Changes only reach the data when the form is saved. */
 export function TagField({ value, error, onChange }: TagFieldProps) {
   return (
-    <Field label="Tags" optional error={error} hint="Type to find a tag or create a new one. Enter adds it.">
+    <Field label={t('Tags')} optional error={error} hint={t('Type to find a tag or create a new one. Enter adds it.')}>
       {(field) => <TagSelector value={value} onChange={onChange} inputProps={field} />}
     </Field>
   );
@@ -103,16 +104,16 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
   const commitText = (): boolean => {
     if (name === '') return false;
     if (atLimit) {
-      setNotice(`Items can have at most ${MAX_TAGS_PER_ITEM} tags.`);
+      setNotice(t('Items can have at most {max} tags.', { max: MAX_TAGS_PER_ITEM }));
       return false;
     }
     if (tooLong) {
-      setNotice(`Tag names must be at most ${MAX_TAG_NAME_LENGTH} characters.`);
+      setNotice(t('Tag names must be at most {max} characters.', { max: MAX_TAG_NAME_LENGTH }));
       return false;
     }
     if (selectedKeys.has(key)) {
       setText('');
-      setNotice(`“${name}” is already added.`);
+      setNotice(t('“{name}” is already added.', { name }));
       return true;
     }
     const existing = findTagByName(tags, name);
@@ -170,7 +171,7 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
         )}
       >
         {selected.length > 0 && (
-          <ul aria-label="Selected tags" className="contents">
+          <ul aria-label={t('Selected tags')} className="contents">
             {selected.map((item) => (
               <li key={item.key} className="min-w-0">
                 <TagChip
@@ -180,8 +181,8 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
                   trailing={
                     <button
                       type="button"
-                      aria-label={`Remove tag ${item.name}`}
-                      title={`Remove ${item.name}`}
+                      aria-label={t('Remove tag {name}', { name: item.name })}
+                      title={t('Remove {name}', { name: item.name })}
                       onClick={(event) => {
                         event.stopPropagation();
                         remove(item.index);
@@ -196,7 +197,7 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
                   {item.tag ? undefined : (
                     <>
                       {item.name}
-                      <span className="ml-1 text-[10px] font-normal opacity-70">new</span>
+                      <span className="ml-1 text-[10px] font-normal opacity-70">{t('new')}</span>
                     </>
                   )}
                 </TagChip>
@@ -217,7 +218,7 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
           spellCheck={false}
           enterKeyHint="enter"
           maxLength={MAX_TAG_NAME_LENGTH * 2}
-          placeholder={atLimit ? 'Tag limit reached' : selected.length === 0 ? 'Add tags…' : 'Add another…'}
+          placeholder={atLimit ? t('Tag limit reached') : selected.length === 0 ? t('Add tags…') : t('Add another…')}
           value={text}
           onFocus={() => setOpen(true)}
           onChange={(event) => {
@@ -234,7 +235,7 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
       <ul
         id={listId}
         role="listbox"
-        aria-label="Tag suggestions"
+        aria-label={t('Tag suggestions')}
         className={cn('scrollbar-thin mt-1 max-h-48 overflow-y-auto rounded-lg border border-line-strong bg-raised p-1', (!showList || options.length === 0) && 'hidden')}
       >
         {options.map((option, index) => (
@@ -257,7 +258,7 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
               <>
                 <Plus className="size-3.5 shrink-0 text-accent-300" aria-hidden="true" />
                 <span className="min-w-0 truncate">
-                  Create tag <span className="font-medium">“{option.name}”</span>
+                  {t('Create tag')} <span className="font-medium">“{option.name}”</span>
                 </span>
               </>
             )}
@@ -268,13 +269,13 @@ export function TagSelector({ value, onChange, inputProps }: TagSelectorProps) {
       <p aria-live="polite" className="mt-1 text-xs text-subtle empty:hidden">
         {notice ??
           (showList && tooLong
-            ? `Tag names must be at most ${MAX_TAG_NAME_LENGTH} characters.`
+            ? t('Tag names must be at most {max} characters.', { max: MAX_TAG_NAME_LENGTH })
             : showList && options.length === 0 && key === '' && tags.length === 0
-              ? 'No tags yet. Type a name to create the first one.'
+              ? t('No tags yet. Type a name to create the first one.')
               : showList && more > 0
-                ? `${more} more ${more === 1 ? 'tag matches' : 'tags match'}. Keep typing to narrow it down.`
+                ? tn('{count} more tag matches. Keep typing to narrow it down.|{count} more tags match. Keep typing to narrow it down.', more)
                 : atLimit && open
-                  ? `Items can have at most ${MAX_TAGS_PER_ITEM} tags.`
+                  ? t('Items can have at most {max} tags.', { max: MAX_TAGS_PER_ITEM })
                   : '')}
       </p>
     </div>

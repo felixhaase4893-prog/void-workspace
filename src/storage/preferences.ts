@@ -4,6 +4,7 @@ import { DEFAULT_REMINDER_SETTINGS, REMINDER_LEAD_DAYS, REMINDER_TIME_PATTERN, p
 import { normalizeDashboardLayout, type DashboardLayout } from '../domain/dashboardLayout';
 import { DEFAULT_DISCORD_SETTINGS, type DiscordSettings } from '../domain/discordPresence';
 import { parseSearchHistory } from '../domain/searchHistory';
+import { isLanguage, type Language } from '../i18n/languages';
 import type { KeyValueStore } from './keyValueStore';
 
 /**
@@ -27,6 +28,8 @@ export interface Preferences {
   searchHistory?: boolean;
   /** Discord Rich Presence (4.3). Missing means the defaults (on, with elapsed time). */
   discord?: DiscordSettings;
+  /** App language (4.5). Missing means the system language, or English if VOID does not speak it. */
+  language?: Language;
 }
 
 /** The Discord settings with defaults filled in. */
@@ -63,6 +66,8 @@ const preferencesSchema = z.object({
     })
     .optional()
     .catch(undefined),
+  // Added in 4.5. An unknown code (e.g. from a newer version) falls back to the system language.
+  language: z.string().refine(isLanguage).optional().catch(undefined),
 });
 
 function readJson(store: KeyValueStore, key: string): unknown {

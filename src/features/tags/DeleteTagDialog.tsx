@@ -8,6 +8,7 @@ import type { Tag } from '../../domain/models';
 import type { TagUsage } from '../../domain/tags';
 import { useWorkspaceActions } from '../../state/workspaceContext';
 import { describeUsage } from './usageText';
+import { t, tn } from '../../i18n/translate';
 
 interface DeleteTagDialogProps {
   tag: Tag;
@@ -25,8 +26,8 @@ export function DeleteTagDialog({ tag, usage, onClose }: DeleteTagDialogProps) {
   const confirm = async () => {
     setPending(true);
     const result = await deleteTag(tag.id);
-    if (result.ok) showToast(`Tag “${tag.name}” deleted.`);
-    else showToast(`Deleted for now, but not saved: ${result.error.message}`, 'danger');
+    if (result.ok) showToast(t('Tag “{name}” deleted.', { name: tag.name }));
+    else showToast(t('Deleted for now, but not saved: {reason}', { reason: result.error.message }), 'danger');
     onClose();
   };
 
@@ -34,25 +35,25 @@ export function DeleteTagDialog({ tag, usage, onClose }: DeleteTagDialogProps) {
     <Dialog
       open
       onClose={onClose}
-      title="Delete tag?"
-      description={`“${tag.name}” will be removed from VOID. This cannot be undone.`}
+      title={t('Delete tag?')}
+      description={t('“{name}” will be removed from VOID. This cannot be undone.', { name: tag.name })}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} data-autofocus>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant="danger" disabled={pending} onClick={() => void confirm()}>
-            {total > 0 ? `Remove from ${total} ${total === 1 ? 'item' : 'items'} and delete` : 'Delete tag'}
+            {total > 0 ? tn('Remove from {count} item and delete|Remove from {count} items and delete', total) : t('Delete tag')}
           </Button>
         </>
       }
     >
       {total > 0 && usage ? (
-        <Alert tone="warning" title={`This tag is used ${total} ${total === 1 ? 'time' : 'times'}: ${describeUsage(usage)}.`}>
-          The tag is removed from them. The projects, tasks, notes and snippets themselves are kept unchanged.
+        <Alert tone="warning" title={tn('This tag is used {count} time: {usage}.|This tag is used {count} times: {usage}.', total, { usage: describeUsage(usage) })}>
+          {t('The tag is removed from them. The projects, tasks, notes and snippets themselves are kept unchanged.')}
         </Alert>
       ) : (
-        <p className="text-[13px] text-muted">This tag is not used anywhere.</p>
+        <p className="text-[13px] text-muted">{t('This tag is not used anywhere.')}</p>
       )}
     </Dialog>
   );

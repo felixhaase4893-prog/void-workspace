@@ -1,5 +1,6 @@
 import type { StatsBucket } from '../../domain/statistics';
 import { cn } from '../../lib/cn';
+import { t } from '../../i18n/translate';
 
 export interface ChartSeries {
   key: 'tasksCreated' | 'tasksCompleted' | 'bugsReported' | 'bugsClosed';
@@ -70,7 +71,7 @@ export function BarChart({ title, buckets, series }: BarChartProps) {
         <caption>{title}</caption>
         <thead>
           <tr>
-            <th scope="col">Period</th>
+            <th scope="col">{t('Period')}</th>
             {series.map((entry) => (
               <th key={entry.key} scope="col">
                 {entry.label}

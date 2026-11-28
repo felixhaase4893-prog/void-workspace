@@ -14,6 +14,7 @@ import { useListFilters } from '../filters/listFiltersContext';
 import { SelectionBar } from '../selection/SelectionBar';
 import { useSelection } from '../selection/useSelection';
 import { TaskRow } from './TaskRow';
+import { t } from '../../i18n/translate';
 
 export function TasksPage() {
   const workspace = useWorkspace();
@@ -24,26 +25,26 @@ export function TasksPage() {
   const openCount = workspace.tasks.filter(isOpenTask).length;
   const description =
     workspace.tasks.length === 0
-      ? 'What needs doing across all of your projects.'
+      ? t('What needs doing across all of your projects.')
       : openCount === 0
-        ? 'No open tasks. Everything on your list is done.'
-        : `${openCount} open across all of your projects.`;
+        ? t('No open tasks. Everything on your list is done.')
+        : t('{count} open across all of your projects.', { count: openCount });
 
   const selectButton = (
-    <Button icon={<SquareCheckBig />} onClick={selection.start} title="Select several to change or delete them together">
-      Select
+    <Button icon={<SquareCheckBig />} onClick={selection.start} title={t('Select several to change or delete them together')}>
+      {t('Select')}
     </Button>
   );
 
   const newButton = (
     <Button variant="primary" icon={<Plus />} onClick={() => openCreateDialog('task')}>
-      New task
+      {t('New task')}
     </Button>
   );
 
   return (
     <>
-      <PageHeader title="Tasks" description={description} actions={
+      <PageHeader title={t('Tasks')} description={description} actions={
           workspace.tasks.length > 0 ? (
             <>
               {!selection.active && selectButton}
@@ -53,7 +54,7 @@ export function TasksPage() {
         } />
       {workspace.tasks.length === 0 ? (
         <Card>
-          <EmptyState icon={ListChecks} title="No tasks yet" description="Add tasks for features, chores and anything else on your list." action={newButton} quickAddHint />
+          <EmptyState icon={ListChecks} title={t('No tasks yet')} description={t('Add tasks for features, chores and anything else on your list.')} action={newButton} quickAddHint />
         </Card>
       ) : (
         <>

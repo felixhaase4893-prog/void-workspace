@@ -13,6 +13,7 @@ import { useListFilters } from '../filters/listFiltersContext';
 import { SelectionBar } from '../selection/SelectionBar';
 import { useSelection } from '../selection/useSelection';
 import { BugRow } from './BugRow';
+import { t } from '../../i18n/translate';
 
 /** A lean bug list for one developer: filter by status, priority, due date, project and tags; fixed bugs stay visible. */
 export function BugsPage() {
@@ -24,22 +25,22 @@ export function BugsPage() {
   const open = workspace.bugs.filter((bug) => bug.status === 'open' || bug.status === 'in_progress').length;
 
   const selectButton = (
-    <Button icon={<SquareCheckBig />} onClick={selection.start} title="Select several to change or delete them together">
-      Select
+    <Button icon={<SquareCheckBig />} onClick={selection.start} title={t('Select several to change or delete them together')}>
+      {t('Select')}
     </Button>
   );
 
   const newButton = (
     <Button variant="primary" icon={<Plus />} onClick={() => openCreateDialog('bug')}>
-      New bug
+      {t('New bug')}
     </Button>
   );
 
   return (
     <>
       <PageHeader
-        title="Bugs"
-        description={workspace.bugs.length === 0 ? 'Keep track of what is broken, project by project.' : `${open} unresolved. Fixed and closed bugs stay here for reference.`}
+        title={t('Bugs')}
+        description={workspace.bugs.length === 0 ? t('Keep track of what is broken, project by project.') : t('{count} unresolved. Fixed and closed bugs stay here for reference.', { count: open })}
         actions={
           workspace.bugs.length > 0 ? (
             <>
@@ -51,7 +52,7 @@ export function BugsPage() {
       />
       {workspace.bugs.length === 0 ? (
         <Card>
-          <EmptyState icon={BugIcon} title="No bugs yet" description="Log bugs with a priority and an optional due date, and link them to a project." action={newButton} quickAddHint />
+          <EmptyState icon={BugIcon} title={t('No bugs yet')} description={t('Log bugs with a priority and an optional due date, and link them to a project.')} action={newButton} quickAddHint />
         </Card>
       ) : (
         <>

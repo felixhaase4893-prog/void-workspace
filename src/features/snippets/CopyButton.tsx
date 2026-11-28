@@ -2,6 +2,7 @@ import { Check, Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Button } from '../../components/ui/Button';
+import { t } from '../../i18n/translate';
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
@@ -25,7 +26,7 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
 
   return (
     <Button size="sm" variant="ghost" aria-label={label} icon={state === 'copied' ? <Check /> : <Copy />} onClick={() => void copy()}>
-      <span aria-live="polite">{state === 'copied' ? 'Copied' : state === 'failed' ? 'Copy failed' : 'Copy'}</span>
+      <span aria-live="polite">{state === 'copied' ? t('Copied') : state === 'failed' ? t('Copy failed') : t('Copy')}</span>
     </Button>
   );
 }

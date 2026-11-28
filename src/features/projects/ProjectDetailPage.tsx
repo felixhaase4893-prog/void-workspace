@@ -23,10 +23,11 @@ import { BugRow } from '../bugs/BugRow';
 import { TaskRow } from '../tasks/TaskRow';
 import { ProjectOverviewPanel } from './ProjectOverviewPanel';
 import { PROJECT_STATUS_TONES } from './projectStatusTones';
+import { t } from '../../i18n/translate';
 
-const backLink = (
+const BackLink = () => (
   <Link to="/projects" className="mb-4 inline-flex items-center gap-1.5 rounded text-xs text-muted hover:text-fg">
-    <ArrowLeft className="size-3.5" aria-hidden="true" /> All projects
+    <ArrowLeft className="size-3.5" aria-hidden="true" /> {t('All projects')}
   </Link>
 );
 
@@ -42,15 +43,15 @@ export function ProjectDetailPage() {
   if (!project) {
     return (
       <>
-        {backLink}
+        <BackLink />
         <Card>
           <EmptyState
             icon={FolderKanban}
-            title="Project not found"
-            description="It may have been deleted, or the link is out of date."
+            title={t('Project not found')}
+            description={t('It may have been deleted, or the link is out of date.')}
             action={
               <Link to="/projects" className="text-[13px] font-medium text-accent-300 hover:text-accent-200">
-                Back to projects
+                {t('Back to projects')}
               </Link>
             }
           />
@@ -65,7 +66,7 @@ export function ProjectDetailPage() {
 
   return (
     <>
-      {backLink}
+      <BackLink />
       <PageHeader
         eyebrow={PROJECT_KIND_LABELS[project.kind]}
         title={project.name}
@@ -74,7 +75,7 @@ export function ProjectDetailPage() {
           <>
             <FavoriteToggle type="project" id={project.id} title={project.name} favorite={project.favorite} />
             <Button icon={<Pencil />} onClick={() => openEditDialog('project', project.id)}>
-              Edit
+              {t('Edit')}
             </Button>
             <Button
               variant="ghost"
@@ -82,7 +83,7 @@ export function ProjectDetailPage() {
               className="hover:text-danger"
               onClick={() => openDeleteDialog('project', project.id, { onDeleted: () => navigate('/projects') })}
             >
-              Delete
+              {t('Delete')}
             </Button>
           </>
         }
@@ -92,17 +93,17 @@ export function ProjectDetailPage() {
         <ProjectOverviewPanel workspace={workspace} projectId={project.id} today={today} />
         <Card className="p-5">
           <dl className="grid gap-x-8 gap-y-4 text-[13px] sm:grid-cols-2 lg:grid-cols-4">
-            <Detail label="Status">
+            <Detail label={t('Status')}>
               <Badge tone={PROJECT_STATUS_TONES[project.status]}>{PROJECT_STATUS_LABELS[project.status]}</Badge>
             </Detail>
-            <Detail label="Created">{formatRelativeTime(project.createdAt, now)}</Detail>
-            <Detail label="Last updated">{formatRelativeTime(project.updatedAt, now)}</Detail>
+            <Detail label={t('Created')}>{formatRelativeTime(project.createdAt, now)}</Detail>
+            <Detail label={t('Last updated')}>{formatRelativeTime(project.updatedAt, now)}</Detail>
             <ProjectTags tagIds={project.tagIds} />
-            <Detail label="Technologies" wide>
+            <Detail label={t('Technologies')} wide>
               {project.technologies.length === 0 ? (
-                <span className="text-subtle">None added</span>
+                <span className="text-subtle">{t('None added')}</span>
               ) : (
-                <ul className="flex flex-wrap gap-1.5" aria-label="Technologies">
+                <ul className="flex flex-wrap gap-1.5" aria-label={t('Technologies')}>
                   {project.technologies.map((technology) => (
                     <li key={technology}>
                       <Badge tone="accent">{technology}</Badge>
@@ -111,9 +112,9 @@ export function ProjectDetailPage() {
                 </ul>
               )}
             </Detail>
-            <Detail label="Links" wide>
+            <Detail label={t('Links')} wide>
               {project.links.length === 0 ? (
-                <span className="text-subtle">None added</span>
+                <span className="text-subtle">{t('None added')}</span>
               ) : (
                 <ul className="space-y-1">
                   {project.links.map((link) => (
@@ -139,21 +140,21 @@ export function ProjectDetailPage() {
           <Card>
             <EmptyState
               icon={FolderKanban}
-              title="Nothing in this project yet"
-              description="Add the first task, bug, note or snippet. Everything you add here is linked to this project."
+              title={t('Nothing in this project yet')}
+              description={t('Add the first task, bug, note or snippet. Everything you add here is linked to this project.')}
               action={
                 <div className="flex flex-wrap justify-center gap-2">
                   <Button size="sm" icon={<ListChecks />} onClick={() => create('task')}>
-                    Add task
+                    {t('Add task')}
                   </Button>
                   <Button size="sm" icon={<BugIcon />} onClick={() => create('bug')}>
-                    Add bug
+                    {t('Add bug')}
                   </Button>
                   <Button size="sm" icon={<StickyNote />} onClick={() => create('note')}>
-                    Add note
+                    {t('Add note')}
                   </Button>
                   <Button size="sm" icon={<Code2 />} onClick={() => create('snippet')}>
-                    Add snippet
+                    {t('Add snippet')}
                   </Button>
                 </div>
               }
@@ -163,7 +164,7 @@ export function ProjectDetailPage() {
 
         {!isEmpty && (
           <>
-            <Section title="Tasks" count={tasks.length} icon={ListChecks} emptyText="No tasks in this project." onAdd={() => create('task')} addLabel="Add task">
+            <Section title={t('Tasks')} count={tasks.length} icon={ListChecks} emptyText={t('No tasks in this project.')} onAdd={() => create('task')} addLabel={t('Add task')}>
               {tasks.length > 0 && (
                 <Card>
                   <ul className="divide-y divide-line">
@@ -174,7 +175,7 @@ export function ProjectDetailPage() {
                 </Card>
               )}
             </Section>
-            <Section title="Bugs" count={bugs.length} icon={BugIcon} emptyText="No bugs in this project." onAdd={() => create('bug')} addLabel="Add bug">
+            <Section title={t('Bugs')} count={bugs.length} icon={BugIcon} emptyText={t('No bugs in this project.')} onAdd={() => create('bug')} addLabel={t('Add bug')}>
               {bugs.length > 0 && (
                 <Card>
                   <ul className="divide-y divide-line">
@@ -185,7 +186,7 @@ export function ProjectDetailPage() {
                 </Card>
               )}
             </Section>
-            <Section title="Notes" count={notes.length} icon={StickyNote} emptyText="No notes in this project." onAdd={() => create('note')} addLabel="Add note">
+            <Section title={t('Notes')} count={notes.length} icon={StickyNote} emptyText={t('No notes in this project.')} onAdd={() => create('note')} addLabel={t('Add note')}>
               {notes.length > 0 && (
                 <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {notes.map((note) => (
@@ -196,7 +197,7 @@ export function ProjectDetailPage() {
                 </ul>
               )}
             </Section>
-            <Section title="Snippets" count={snippets.length} icon={Code2} emptyText="No snippets in this project." onAdd={() => create('snippet')} addLabel="Add snippet">
+            <Section title={t('Snippets')} count={snippets.length} icon={Code2} emptyText={t('No snippets in this project.')} onAdd={() => create('snippet')} addLabel={t('Add snippet')}>
               {snippets.length > 0 && (
                 <ul className="grid gap-4 lg:grid-cols-2">
                   {snippets.map((snippet) => (
@@ -219,7 +220,7 @@ function ProjectTags({ tagIds }: { tagIds: string[] }) {
   const tags = useItemTags(tagIds);
   if (tags.length === 0) return null;
   return (
-    <Detail label="Tags" wide>
+    <Detail label={t('Tags')} wide>
       <TagList tagIds={tagIds} />
     </Detail>
   );

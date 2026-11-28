@@ -8,8 +8,9 @@ import { getNotificationSupport } from '../../lib/desktop';
 import { cn } from '../../lib/cn';
 import { usePreferences } from '../../state/preferencesContext';
 import { SettingsSection } from './SettingsSection';
+import { localized, t } from '../../i18n/translate';
 
-const LEAD_LABELS: Record<ReminderLeadDays, string> = { 0: 'No early reminder', 1: '1 day before', 2: '2 days before', 3: '3 days before', 7: '1 week before' };
+const LEAD_LABELS = localized<ReminderLeadDays>({ 0: 'No early reminder', 1: '1 day before', 2: '2 days before', 3: '3 days before', 7: '1 week before' });
 
 /** Notification and tray settings. Everything runs locally: no internet, no push service. */
 export function NotificationsSection() {
@@ -20,33 +21,33 @@ export function NotificationsSection() {
   const set = (changes: Partial<ReminderSettings>) => updatePreferences((current) => ({ ...current, notifications: { ...current.notifications, ...changes } }));
 
   return (
-    <SettingsSection title="Notifications" description="Desktop reminders for due tasks and important bugs. They are created on this device; no internet connection is needed.">
+    <SettingsSection title={t('Notifications')} description={t('Desktop reminders for due tasks and important bugs. They are created on this device; no internet connection is needed.')}>
       <div className="space-y-4">
-        {support === 'unsupported' && <p className="text-xs text-warning">Notifications are not available in this environment.</p>}
-        {support === 'browser-blocked' && <p className="text-xs text-warning">Notifications are blocked for this page in the browser settings.</p>}
+        {support === 'unsupported' && <p className="text-xs text-warning">{t('Notifications are not available in this environment.')}</p>}
+        {support === 'browser-blocked' && <p className="text-xs text-warning">{t('Notifications are blocked for this page in the browser settings.')}</p>}
         <Toggle
-          label="Desktop notifications"
-          description="Turns all reminders on or off."
+          label={t('Desktop notifications')}
+          description={t('Turns all reminders on or off.')}
           checked={settings.enabled}
           onChange={(enabled) => set({ enabled })}
         />
         <div className={cn('space-y-4 border-l border-line pl-4', !settings.enabled && 'opacity-50')}>
           <Toggle
-            label="Task reminders"
-            description="Tasks due today, overdue and coming up. Done tasks are never reminded."
+            label={t('Task reminders')}
+            description={t('Tasks due today, overdue and coming up. Done tasks are never reminded.')}
             checked={settings.tasks}
             disabled={!settings.enabled}
             onChange={(tasks) => set({ tasks })}
           />
           <Toggle
-            label="Bug reminders"
-            description="Due dates of unresolved bugs, plus one reminder for each open critical bug."
+            label={t('Bug reminders')}
+            description={t('Due dates of unresolved bugs, plus one reminder for each open critical bug.')}
             checked={settings.bugs}
             disabled={!settings.enabled}
             onChange={(bugs) => set({ bugs })}
           />
           <div className="grid gap-4 sm:grid-cols-2">
-            <LabeledControl label="Reminder time" hint="Each reminder is shown once, at or after this time.">
+            <LabeledControl label={t('Reminder time')} hint={t('Each reminder is shown once, at or after this time.')}>
               {(id) => (
                 <Input
                   id={id}
@@ -60,7 +61,7 @@ export function NotificationsSection() {
                 />
               )}
             </LabeledControl>
-            <LabeledControl label="Early reminder" hint="An extra reminder before the due date.">
+            <LabeledControl label={t('Early reminder')} hint={t('An extra reminder before the due date.')}>
               {(id) => (
                 <Select
                   id={id}
@@ -80,17 +81,18 @@ export function NotificationsSection() {
         </div>
         <div className="border-t border-line pt-4">
           <Toggle
-            label="Keep running in the notification area"
-            description="Closing the window hides VOID next to the clock instead of quitting, so reminders keep coming. Quit from the tray icon."
+            label={t('Keep running in the notification area')}
+            description={t('Closing the window hides VOID next to the clock instead of quitting, so reminders keep coming. Quit from the tray icon.')}
             checked={preferences.keepInTray}
             disabled={!desktop}
-            badge={desktop ? undefined : <Badge>Desktop app only</Badge>}
+            badge={desktop ? undefined : <Badge>{t('Desktop app only')}</Badge>}
             onChange={(keepInTray) => updatePreferences((current) => ({ ...current, keepInTray }))}
           />
         </div>
         <p className="rounded-lg bg-raised px-3 py-2.5 text-xs leading-relaxed text-muted">
-          Reminders appear while VOID is open, minimized{desktop ? ' or in the notification area' : ''}. When VOID is closed completely, nothing runs in the background, so
-          nothing is shown; reminders that were missed appear the next time you open VOID. Each reminder is shown only once.
+          {t('Reminders appear while VOID is open, minimized')}
+          {desktop ? t(' or in the notification area') : ''}
+          {t('. When VOID is closed completely, nothing runs in the background, so nothing is shown; reminders that were missed appear the next time you open VOID. Each reminder is shown only once.')}
         </p>
       </div>
     </SettingsSection>

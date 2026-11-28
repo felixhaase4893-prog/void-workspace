@@ -20,6 +20,7 @@ import { FormatDialog } from './FormatDialog';
 import { ResultsPanel } from './ResultsPanel';
 import { SaveDialog, snippetLanguageLabel } from './SaveDialog';
 import { SplitPane } from './SplitPane';
+import { formatNumber, t, translateText } from '../../i18n/translate';
 
 const NO_FINDINGS: Finding[] = [];
 
@@ -60,7 +61,7 @@ export default function CodeTesterPage() {
   }, [state]);
   useEffect(
     () => () => {
-      if (hasUnsavedCode(latest.current)) showToast('Your Code Tester code is not saved. It stays there until you close VOID.', 'warning');
+      if (hasUnsavedCode(latest.current)) showToast(t('Your Code Tester code is not saved. It stays there until you close VOID.'), 'warning');
     },
     [showToast],
   );
@@ -69,11 +70,11 @@ export default function CodeTesterPage() {
     (id: string) => {
       const target = workspace.snippets.find((entry) => entry.id === id);
       if (!target) {
-        showToast('That snippet no longer exists.', 'warning');
+        showToast(t('That snippet no longer exists.'), 'warning');
         return;
       }
       if (exceedsLineLimit(target.code)) {
-        showToast(`“${target.title}” has more than ${MAX_CODE_LINES.toLocaleString('en')} lines and cannot be opened in the Code Tester.`, 'warning');
+        showToast(t('“{title}” has more than {max} lines and cannot be opened in the Code Tester.', { title: target.title, max: formatNumber(MAX_CODE_LINES) }), 'warning');
         return;
       }
       update({
@@ -101,7 +102,7 @@ export default function CodeTesterPage() {
 
   const setCode = useCallback((code: string) => update({ code }), [update]);
   const onLineLimit = useCallback(
-    () => showToast(`The Code Tester holds up to ${MAX_CODE_LINES.toLocaleString('en')} lines. That change was not applied.`, 'warning'),
+    () => showToast(t('The Code Tester holds up to {max} lines. That change was not applied.', { max: formatNumber(MAX_CODE_LINES) }), 'warning'),
     [showToast],
   );
 
@@ -130,7 +131,7 @@ export default function CodeTesterPage() {
       update({ code: text, formatBackup: null });
       editor.current?.focus();
     } catch {
-      showToast('VOID could not read the clipboard. Click into the editor and press Ctrl+V.', 'info');
+      showToast(t('VOID could not read the clipboard. Click into the editor and press Ctrl+V.'), 'info');
     }
   };
 
@@ -152,7 +153,7 @@ export default function CodeTesterPage() {
       return;
     }
     update({ savedCode: state.code });
-    showToast(`Saved to “${snippet.title}”.`, 'success');
+    showToast(t('Saved to “{title}”.', { title: snippet.title }), 'success');
   };
 
   const clear = () => {
@@ -166,45 +167,45 @@ export default function CodeTesterPage() {
 
   return (
     <>
-      <PageHeader title="Code Tester" description="Static analysis and formatting for your code. It is only read, never run, and never leaves this device." />
+      <PageHeader title={t('Code Tester')} description={t('Static analysis and formatting for your code. It is only read, never run, and never leaves this device.')} />
 
       <div className="mb-3 flex flex-wrap items-center gap-2">
         <label className="sr-only" htmlFor="code-language">
-          Language
+          {t('Language')}
         </label>
         <Select id="code-language" value={state.language} onChange={(event) => changeLanguage(event.target.value)} className="w-auto min-w-[10rem]">
           {CODE_LANGUAGES.map((entry) => (
             <option key={entry.id} value={entry.id}>
-              {entry.label}
+              {translateText(entry.label)}
             </option>
           ))}
         </Select>
-        <Button size="md" icon={<Zap />} onClick={() => void run('quick')} disabled={running || !language.quickScan} title={language.quickScan ? 'Brackets, strings and obvious problems' : 'Not available for this language'}>
-          Quick Scan
+        <Button size="md" icon={<Zap />} onClick={() => void run('quick')} disabled={running || !language.quickScan} title={language.quickScan ? t('Brackets, strings and obvious problems') : t('Not available for this language')}>
+          {t('Quick Scan')}
         </Button>
-        <Button size="md" variant="primary" icon={<Microscope />} onClick={() => void run('deep')} disabled={running || !language.deepScan} title={language.deepScan ? language.deepScanNote : 'Not available for this language'}>
-          Deep Scan
+        <Button size="md" variant="primary" icon={<Microscope />} onClick={() => void run('deep')} disabled={running || !language.deepScan} title={language.deepScan ? language.deepScanNote : t('Not available for this language')}>
+          {t('Deep Scan')}
         </Button>
-        <Button size="md" icon={<WandSparkles />} onClick={() => setDialog('format')} disabled={state.code.trim() === ''} title={language.format ? 'Preview formatting' : 'Formatting is not available for this language'}>
-          Format
+        <Button size="md" icon={<WandSparkles />} onClick={() => setDialog('format')} disabled={state.code.trim() === ''} title={language.format ? t('Preview formatting') : t('Formatting is not available for this language')}>
+          {t('Format')}
         </Button>
         <div className="ml-auto flex flex-wrap items-center gap-1">
-          <IconButton label="Paste from clipboard" onClick={() => void paste()}>
+          <IconButton label={t('Paste from clipboard')} onClick={() => void paste()}>
             <ClipboardPaste />
           </IconButton>
-          <CopyButton text={state.code} label="Copy code" />
-          <IconButton label={state.wrap ? 'Turn off line wrapping' : 'Wrap long lines'} aria-pressed={state.wrap} onClick={() => update({ wrap: !state.wrap })} className={cn(state.wrap && 'bg-raised text-accent-300')}>
+          <CopyButton text={state.code} label={t('Copy code')} />
+          <IconButton label={state.wrap ? t('Turn off line wrapping') : t('Wrap long lines')} aria-pressed={state.wrap} onClick={() => update({ wrap: !state.wrap })} className={cn(state.wrap && 'bg-raised text-accent-300')}>
             <WrapText />
           </IconButton>
-          <IconButton label="Clear editor" onClick={() => (unsaved ? setDialog('clear') : clear())} disabled={state.code === '' && !state.snippetId}>
+          <IconButton label={t('Clear editor')} onClick={() => (unsaved ? setDialog('clear') : clear())} disabled={state.code === '' && !state.snippetId}>
             <Eraser />
           </IconButton>
           <Button size="md" icon={<Save />} onClick={() => void saveToLinked()} disabled={state.code.trim() === '' || (snippet !== null && !unsaved)}>
-            {snippet ? 'Save' : 'Save…'}
+            {snippet ? t('Save') : t('Save…')}
           </Button>
           {snippet && (
             <Button size="md" variant="ghost" onClick={() => setDialog('save')} disabled={state.code.trim() === ''}>
-              Save as…
+              {t('Save as…')}
             </Button>
           )}
         </div>
@@ -213,32 +214,32 @@ export default function CodeTesterPage() {
       <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs" aria-live="polite">
         {snippet ? (
           <span className="flex min-w-0 items-center gap-2 text-muted">
-            <Badge tone="accent">Snippet</Badge>
+            <Badge tone="accent">{t('Snippet')}</Badge>
             <span className="truncate text-fg">{snippet.title}</span>
-            {unsaved ? <span className="text-warning">· Unsaved changes</span> : <span className="text-subtle">· Saved</span>}
+            {unsaved ? <span className="text-warning">{t('· Unsaved changes')}</span> : <span className="text-subtle">{t('· Saved')}</span>}
           </span>
         ) : (
           <span className="flex items-center gap-2 text-muted">
-            <Badge tone={unsaved ? 'warning' : 'neutral'}>Scratch</Badge>
-            {unsaved ? 'Not saved. Kept until you close VOID; save it as a snippet to keep it.' : 'Paste code to analyse it. Nothing is saved automatically.'}
+            <Badge tone={unsaved ? 'warning' : 'neutral'}>{t('Scratch')}</Badge>
+            {unsaved ? t('Not saved. Kept until you close VOID; save it as a snippet to keep it.') : t('Paste code to analyse it. Nothing is saved automatically.')}
           </span>
         )}
         <span className={cn('ml-auto font-mono tabular-nums', lines > MAX_CODE_LINES * 0.9 ? 'text-warning' : 'text-subtle')}>
-          {lines.toLocaleString('en')} / {MAX_CODE_LINES.toLocaleString('en')} lines
+          {formatNumber(lines)} / {formatNumber(MAX_CODE_LINES)} {t('lines')}
         </span>
       </div>
 
       {canRestore && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-accent-500/25 bg-accent-500/[0.06] px-4 py-2 text-[13px] text-accent-200" role="status">
-          Formatting applied.
+          {t('Formatting applied.')}
           <Button size="sm" variant="ghost" icon={<RotateCcw />} onClick={() => state.formatBackup && update({ code: state.formatBackup.original, formatBackup: null })}>
-            Restore original
+            {t('Restore original')}
           </Button>
         </div>
       )}
 
       <SplitPane
-        label="Resize editor and analysis"
+        label={t('Resize editor and analysis')}
         first={<CodeEditor ref={editor} value={state.code} language={state.language} wrap={state.wrap} findings={findings} onChange={setCode} onLineLimit={onLineLimit} />}
         second={<ResultsPanel outcome={state.outcome} running={running} outdated={outdated} onSelect={select} />}
       />
@@ -251,7 +252,7 @@ export default function CodeTesterPage() {
           onApply={(formatted) => {
             update((current: CodeTesterState) => ({ code: formatted, formatBackup: { original: current.code, formatted } }));
             setDialog(null);
-            showToast('Formatting applied.', 'success');
+            showToast(t('Formatting applied.'), 'success');
           }}
         />
       )}
@@ -269,18 +270,18 @@ export default function CodeTesterPage() {
       )}
       {dialog === 'clear' && (
         <ConfirmDialog
-          title="Clear the editor?"
-          description="The code is not saved and cannot be brought back."
-          confirmLabel="Clear code"
+          title={t('Clear the editor?')}
+          description={t('The code is not saved and cannot be brought back.')}
+          confirmLabel={t('Clear code')}
           onConfirm={clear}
           onClose={() => setDialog(null)}
         />
       )}
       {pendingSnippet && (
         <ConfirmDialog
-          title="Replace unsaved code?"
-          description="The Code Tester has code that is not saved. Opening the snippet replaces it."
-          confirmLabel="Open snippet"
+          title={t('Replace unsaved code?')}
+          description={t('The Code Tester has code that is not saved. Opening the snippet replaces it.')}
+          confirmLabel={t('Open snippet')}
           onConfirm={() => {
             loadSnippet(pendingSnippet);
             setPendingSnippet(null);

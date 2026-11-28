@@ -10,7 +10,7 @@ import { PageHeader } from '../../components/ui/PageHeader';
 import { Spinner } from '../../components/ui/Spinner';
 import { CATEGORY_LABELS, driveTarget, OPEN_TARGETS } from '../../domain/optimizer/catalog';
 import { OPTIMIZATION_CATEGORIES, type ExecutionResult, type PreviewState, type ScanResult } from '../../domain/optimizer/models';
-import { formatBytes } from '../../domain/optimizer/sizes';
+import { formatBytes } from './format';
 import { cn } from '../../lib/cn';
 import { ConfirmOptimizationDialog } from './ConfirmOptimizationDialog';
 import { FindingsSection, ResourceSummarySection } from './DeepScanSections';
@@ -19,8 +19,9 @@ import { OpenTargetButton, OpenTargetContext } from './OpenTargetButton';
 import { createOptimizerClient, type OptimizerClient } from './optimizerClient';
 import { RecommendationItem, recommendationAnchor } from './RecommendationItem';
 import { useOptimizer } from './useOptimizer';
+import { formatDateTime, formatNumber, type MessageKey, t, tn, translateText } from '../../i18n/translate';
 
-const SKIP_LABELS: Record<string, string> = {
+const SKIP_LABELS: Record<string, MessageKey> = {
   'recently-modified': 'changed in the last 24 hours (may be in use)',
   'junction-or-link': 'links/junctions (not followed)',
   symlink: 'symbolic links (not followed)',
@@ -43,7 +44,7 @@ export default function OptimizerPage({ client: injected }: { client?: Optimizer
   const highlightTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(highlightTimer.current), []);
 
-  /** "Go to action": scrolls to the recommendation and highlights it for a moment. */
+  /** t('Go to action'): scrolls to the recommendation and highlights it for a moment. */
   const jumpTo = useCallback((recommendationId: string) => {
     document.getElementById(recommendationAnchor(recommendationId))?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     setHighlightId(recommendationId);
@@ -61,17 +62,17 @@ export default function OptimizerPage({ client: injected }: { client?: Optimizer
   return (
     <OpenTargetContext.Provider value={client.openTarget}>
       <PageHeader
-        eyebrow="PC Optimizer"
-        title={state.preview ? 'Optimization preview' : 'PC Optimizer'}
-        description="Analyses your PC read-only and shows what could be optimized safely. In this version, actions are only simulated."
+        eyebrow={t('PC Optimizer')}
+        title={state.preview ? t('Optimization preview') : t('PC Optimizer')}
+        description={t('Analyses your PC read-only and shows what could be optimized safely. In this version, actions are only simulated.')}
         actions={
           state.phase !== 'scanning' && (
             <div className="flex flex-wrap gap-2">
               <Button variant={state.preview ? 'secondary' : 'primary'} icon={<ScanSearch />} onClick={() => void optimizer.scan('quick')}>
-                {state.scan?.mode === 'quick' ? 'Repeat quick scan' : 'Quick scan'}
+                {state.scan?.mode === 'quick' ? t('Repeat quick scan') : t('Quick scan')}
               </Button>
               <Button icon={<Microscope />} onClick={() => void optimizer.scan('deep')}>
-                {state.scan?.mode === 'deep' ? 'Repeat deep scan' : 'Deep scan'}
+                {state.scan?.mode === 'deep' ? t('Repeat deep scan') : t('Deep scan')}
               </Button>
             </div>
           )
@@ -80,17 +81,17 @@ export default function OptimizerPage({ client: injected }: { client?: Optimizer
 
       <div className="space-y-6">
         {client.mode === 'demo' && (
-          <Alert tone="info" title="Demo mode with simulated data">
-            In the browser, VOID has no access to your PC. The real, read-only scan is available in the desktop app.
+          <Alert tone="info" title={t('Demo mode with simulated data')}>
+            {t('In the browser, VOID has no access to your PC. The real, read-only scan is available in the desktop app.')}
           </Alert>
         )}
         {state.error && (
           <Alert
             tone="danger"
-            title={state.error.message}
+            title={translateText(state.error.message)}
             action={
               <Button size="sm" variant="ghost" onClick={optimizer.dismissError}>
-                Dismiss
+                {t('Dismiss')}
               </Button>
             }
           >
@@ -102,11 +103,11 @@ export default function OptimizerPage({ client: injected }: { client?: Optimizer
           <Card>
             <div className="flex flex-col items-center gap-3 px-6 py-14 text-center" role="status">
               <Spinner className="size-7" />
-              <p className="text-sm font-medium text-fg">{state.scanMode === 'deep' ? 'Deep scan running… (about 15–30 seconds)' : 'Analysing your PC…'}</p>
+              <p className="text-sm font-medium text-fg">{state.scanMode === 'deep' ? t('Deep scan running… (about 15–30 seconds)') : t('Analysing your PC…')}</p>
               <p className="max-w-sm text-[13px] text-muted">
                 {state.scanMode === 'deep'
-                  ? 'CPU, GPU, RAM, network and disk I/O are measured per program, plus browser caches and error reports. Nothing is changed.'
-                  : 'Processes, startup entries, temporary files and system information are read. Nothing is changed.'}
+                  ? t('CPU, GPU, RAM, network and disk I/O are measured per program, plus browser caches and error reports. Nothing is changed.')
+                  : t('Processes, startup entries, temporary files and system information are read. Nothing is changed.')}
               </p>
             </div>
           </Card>
@@ -116,8 +117,8 @@ export default function OptimizerPage({ client: injected }: { client?: Optimizer
           <Card>
             <EmptyState
               icon={Gauge}
-              title="No scan yet"
-              description="The scan reads processes, startup entries, temporary files and system information. It deletes, ends or changes nothing and never asks for administrator rights."
+              title={t('No scan yet')}
+              description={t('The scan reads processes, startup entries, temporary files and system information. It deletes, ends or changes nothing and never asks for administrator rights.')}
               action={<ScanChoice onScan={(mode) => void optimizer.scan(mode)} />}
             />
           </Card>
@@ -171,17 +172,17 @@ function ScanChoice({ onScan }: { onScan: (mode: 'quick' | 'deep') => void }) {
   return (
     <div className="grid w-full max-w-xl gap-3 text-left sm:grid-cols-2">
       <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-4">
-        <p className="text-[13px] font-semibold text-fg">Quick scan</p>
-        <p className="flex-1 text-xs text-muted">A few seconds. Processes, startup, Temp folder and system info.</p>
+        <p className="text-[13px] font-semibold text-fg">{t('Quick scan')}</p>
+        <p className="flex-1 text-xs text-muted">{t('A few seconds. Processes, startup, Temp folder and system info.')}</p>
         <Button variant="primary" icon={<ScanSearch />} onClick={() => onScan('quick')}>
-          Quick scan
+          {t('Quick scan')}
         </Button>
       </div>
       <div className="flex flex-col gap-2 rounded-xl border border-line bg-surface p-4">
-        <p className="text-[13px] font-semibold text-fg">Deep scan</p>
-        <p className="flex-1 text-xs text-muted">About 15–30 seconds. Measures CPU, GPU, RAM and network per program, finds performance hogs and tells you how to fix them.</p>
+        <p className="text-[13px] font-semibold text-fg">{t('Deep scan')}</p>
+        <p className="flex-1 text-xs text-muted">{t('About 15–30 seconds. Measures CPU, GPU, RAM and network per program, finds performance hogs and tells you how to fix them.')}</p>
         <Button icon={<Microscope />} onClick={() => onScan('deep')}>
-          Deep scan
+          {t('Deep scan')}
         </Button>
       </div>
     </div>
@@ -194,7 +195,7 @@ function IssueList({ issues }: { issues: readonly string[] }) {
   return (
     <ul className="mt-1 list-disc space-y-0.5 pl-4">
       {unique.map((message) => (
-        <li key={message}>{message}</li>
+        <li key={message}>{translateText(message)}</li>
       ))}
     </ul>
   );
@@ -206,24 +207,24 @@ function ScanOverview({ scan }: { scan: ScanResult }) {
   return (
     <Card>
       <CardHeader
-        title="System overview"
-        description={`Scanned ${new Date(scan.createdAt).toLocaleString('en-US')} · ${(scan.durationMs / 1000).toLocaleString('en-US', { maximumFractionDigits: 1 })} s`}
-        action={<Badge tone={scan.status === 'completed' ? 'success' : scan.status === 'partial' ? 'warning' : 'danger'}>{scan.status === 'completed' ? 'Complete' : scan.status === 'partial' ? 'Partial' : 'Failed'}</Badge>}
+        title={t('System overview')}
+        description={t('Scanned {date} · {seconds} s', { date: formatDateTime(scan.createdAt), seconds: formatNumber(scan.durationMs / 1000, { maximumFractionDigits: 1 }) })}
+        action={<Badge tone={scan.status === 'completed' ? 'success' : scan.status === 'partial' ? 'warning' : 'danger'}>{scan.status === 'completed' ? t('Complete') : scan.status === 'partial' ? t('Partial') : t('Failed')}</Badge>}
       />
       <dl className="grid gap-4 px-5 py-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Fact icon={<Gauge />} label="Processor" value={system ? system.cpuModel : '–'} hint={system ? `${system.cpuCores} logical cores` : undefined} />
+        <Fact icon={<Gauge />} label={t('Processor')} value={system ? translateText(system.cpuModel) : '–'} hint={system ? t('{count} logical cores', { count: system.cpuCores }) : undefined} />
         <Fact
           icon={<MemoryStick />}
-          label="Memory (actually in use)"
-          value={system ? `${formatBytes(system.usedMemoryBytes)} of ${formatBytes(system.totalMemoryBytes)}` : '–'}
-          hint={`${scan.counts.processes} processes`}
+          label={t('Memory (actually in use)')}
+          value={system ? t('{used} of {total}', { used: formatBytes(system.usedMemoryBytes), total: formatBytes(system.totalMemoryBytes) }) : '–'}
+          hint={tn('{count} process|{count} processes', scan.counts.processes)}
         />
-        <Fact icon={<ShieldCheck />} label="Windows" value={system ? system.windowsVersion : '–'} hint={system ? `Build ${system.windowsBuild}${system.powerPlan ? ` · Power: ${system.powerPlan.name}` : ''}` : undefined} />
+        <Fact icon={<ShieldCheck />} label="Windows" value={system ? translateText(system.windowsVersion) : '–'} hint={system ? (system.powerPlan ? t('Build {build} · Power: {plan}', { build: system.windowsBuild, plan: translateText(system.powerPlan.name) }) : t('Build {build}', { build: system.windowsBuild })) : undefined} />
         <Fact
           icon={<HardDrive />}
-          label="Temporary files (actually on disk)"
+          label={t('Temporary files (actually on disk)')}
           value={formatBytes(estimate.occupiedBytes)}
-          hint={`${formatBytes(estimate.totalBytes)} potentially cleanable · accuracy ${estimate.confidence}`}
+          hint={t('{size} potentially cleanable · accuracy {accuracy}', { size: formatBytes(estimate.totalBytes), accuracy: t(estimate.confidence) })}
         />
       </dl>
       <div className="flex flex-wrap gap-2 border-t border-line px-5 py-3">
@@ -241,7 +242,7 @@ function ScanOverview({ scan }: { scan: ScanResult }) {
                   <span className="font-medium text-fg">
                     {drive.id} {drive.label}
                   </span>
-                  <span className="text-muted">{formatBytes(drive.freeBytes)} free of {formatBytes(drive.totalBytes)}</span>
+                  <span className="text-muted">{t('{free} free of {total}', { free: formatBytes(drive.freeBytes), total: formatBytes(drive.totalBytes) })}</span>
                 </div>
                 {/^[A-Z]:$/.test(drive.id) && (
                   <div className="mt-1.5">
@@ -260,13 +261,13 @@ function ScanOverview({ scan }: { scan: ScanResult }) {
         <div className="space-y-1 border-t border-line px-5 py-3 text-xs text-subtle">
           {scan.errors.map((error, index) => (
             <p key={`${error.module}-${index}`} className="text-warning">
-              {error.message}
+              {translateText(error.message)}
             </p>
           ))}
-          {estimate.inaccessibleCount > 0 && <p>{estimate.inaccessibleCount.toLocaleString('en-US')} files or folders could not be read and were not counted.</p>}
+          {estimate.inaccessibleCount > 0 && <p>{t('{count} files or folders could not be read and were not counted.', { count: formatNumber(estimate.inaccessibleCount) })}</p>}
           {scan.skipped.map((item) => (
             <p key={`${item.module}-${item.reason}`}>
-              Skipped: {item.count.toLocaleString('en-US')} × {SKIP_LABELS[item.reason] ?? item.reason}
+              {t('Skipped: {count} × {reason}', { count: formatNumber(item.count), reason: SKIP_LABELS[item.reason] ? t(SKIP_LABELS[item.reason] as MessageKey) : item.reason })}
               {item.bytes > 0 ? ` (${formatBytes(item.bytes)})` : ''}
             </p>
           ))}
@@ -316,37 +317,37 @@ function PreviewSection({ preview, busy, highlightId, validating, onToggle, onSe
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <h2 id="optimizer-preview" className="text-sm font-semibold text-fg">
-            {preview.recommendations.length} recommendations found
+            {tn('{count} recommendation found|{count} recommendations found', preview.recommendations.length)}
           </h2>
           <Badge tone="accent">
             <ShieldCheck className="size-3" aria-hidden="true" />
-            Read-only · simulation mode
+            {t('Read-only · simulation mode')}
           </Badge>
-          {blockedCount > 0 && <Badge tone="danger">{blockedCount} blocked</Badge>}
+          {blockedCount > 0 && <Badge tone="danger">{t('{count} blocked', { count: blockedCount })}</Badge>}
           <ValidationBadge preview={preview} />
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-3" aria-live="polite">
-        <SummaryTile icon={<ListChecks />} label="Selected actions" value={totals.selectedCount.toLocaleString('en-US')} hint={totals.hasCaution ? 'includes actions marked caution' : 'safe actions only'} />
-        <SummaryTile icon={<HardDrive />} label="Potentially freed" value={formatBytes(totals.estimatedDiskBytes)} hint={`${formatBytes(totals.estimatedDiskBytes)} potentially cleanable (estimate)`} />
+        <SummaryTile icon={<ListChecks />} label={t('Selected actions')} value={formatNumber(totals.selectedCount)} hint={totals.hasCaution ? t('includes actions marked caution') : t('safe actions only')} />
+        <SummaryTile icon={<HardDrive />} label={t('Potentially freed')} value={formatBytes(totals.estimatedDiskBytes)} hint={t('{size} potentially cleanable (estimate)', { size: formatBytes(totals.estimatedDiskBytes) })} />
         <SummaryTile
           icon={<Gauge />}
-          label="Affected items"
-          value={totals.affectedItemCount.toLocaleString('en-US')}
-          hint={`${totals.fileCount.toLocaleString('en-US')} files · ${totals.startupEntryCount} startup · ${totals.processCount} processes${totals.estimatedMemoryBytes > 0 ? ` (about ${formatBytes(totals.estimatedMemoryBytes)} RAM)` : ''}`}
+          label={t('Affected items')}
+          value={formatNumber(totals.affectedItemCount)}
+          hint={t(totals.estimatedMemoryBytes > 0 ? '{files} files · {startup} startup · {processes} processes (about {memory} RAM)' : '{files} files · {startup} startup · {processes} processes', { files: formatNumber(totals.fileCount), startup: totals.startupEntryCount, processes: totals.processCount, memory: formatBytes(totals.estimatedMemoryBytes) })}
         />
       </div>
 
       {validation && (validation.errors.length > 0 || validation.isValid) && (
-        <Alert tone={validation.isValid ? 'info' : 'warning'} title={validation.isValid ? 'Preview is valid' : validation.requiresRescan ? 'New scan required' : 'Preview not valid'}>
+        <Alert tone={validation.isValid ? 'info' : 'warning'} title={validation.isValid ? t('Preview is valid') : validation.requiresRescan ? t('New scan required') : t('Preview not valid')}>
           <IssueList issues={(validation.isValid ? validation.warnings : validation.errors).map((entry) => entry.message)} />
         </Alert>
       )}
 
       {preview.recommendations.length === 0 ? (
         <Card>
-          <EmptyState icon={ShieldCheck} title="Nothing to do" description="The scan found no actions worth taking." />
+          <EmptyState icon={ShieldCheck} title={t('Nothing to do')} description={t('The scan found no actions worth taking.')} />
         </Card>
       ) : (
         OPTIMIZATION_CATEGORIES.map((category) => {
@@ -355,7 +356,7 @@ function PreviewSection({ preview, busy, highlightId, validating, onToggle, onSe
           return (
             <div key={category} className="space-y-2">
               <h3 className="text-xs font-semibold tracking-wide text-subtle uppercase">
-                {CATEGORY_LABELS[category]} ({items.length})
+                {translateText(CATEGORY_LABELS[category])} ({items.length})
               </h3>
               <ul className="space-y-2">
                 {items.map((recommendation) => (
@@ -380,21 +381,21 @@ function PreviewSection({ preview, busy, highlightId, validating, onToggle, onSe
       <div className="z-10 flex sm:sticky sm:bottom-3 flex-wrap items-center justify-between gap-2 rounded-card border border-line-strong bg-overlay/95 px-3 py-2.5 shadow-lg shadow-black/40 backdrop-blur-md">
         <div className="flex flex-wrap gap-2">
           <Button variant="ghost" size="sm" onClick={onCancel} disabled={busy}>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant="ghost" size="sm" onClick={onReset} disabled={busy}>
-            Reset selection
+            {t('Reset selection')}
           </Button>
           <Button variant="ghost" size="sm" onClick={onSelectSafe} disabled={busy}>
-            Select all safe
+            {t('Select all safe')}
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button size="sm" onClick={onValidate} disabled={busy || totals.selectedCount === 0}>
-            {validating ? 'Checking…' : 'Validate preview'}
+            {validating ? t('Checking…') : t('Validate preview')}
           </Button>
           <Button size="sm" variant="primary" onClick={onConfirm} disabled={busy || totals.selectedCount === 0 || preview.validationStatus === 'stale'}>
-            Confirm optimization
+            {t('Confirm optimization')}
           </Button>
         </div>
       </div>
@@ -405,13 +406,13 @@ function PreviewSection({ preview, busy, highlightId, validating, onToggle, onSe
 function ValidationBadge({ preview }: { preview: PreviewState }) {
   switch (preview.validationStatus) {
     case 'valid':
-      return <Badge tone="success">Validated</Badge>;
+      return <Badge tone="success">{t('Validated')}</Badge>;
     case 'stale':
-      return <Badge tone="warning">Outdated</Badge>;
+      return <Badge tone="warning">{t('Outdated')}</Badge>;
     case 'invalid':
-      return <Badge tone="danger">Invalid</Badge>;
+      return <Badge tone="danger">{t('Invalid')}</Badge>;
     default:
-      return <Badge>Not validated</Badge>;
+      return <Badge>{t('Not validated')}</Badge>;
   }
 }
 
@@ -433,13 +434,13 @@ function SummaryTile({ icon, label, value, hint }: { icon: ReactNode; label: str
 function HistoryCard({ history }: { history: readonly ExecutionResult[] }) {
   return (
     <Card>
-      <CardHeader title="Recent simulations" description="Only kept for this session. No system changes were ever made." as="h2" />
+      <CardHeader title={t('Recent simulations')} description={t('Only kept for this session. No system changes were ever made.')} as="h2" />
       <ul className="divide-y divide-line">
         {history.slice(0, 5).map((entry) => (
           <li key={entry.executionId} className="flex flex-wrap items-center justify-between gap-2 px-5 py-2.5 text-[13px]">
-            <span className="text-fg">{new Date(entry.finishedAt).toLocaleString('en-US')}</span>
+            <span className="text-fg">{formatDateTime(entry.finishedAt)}</span>
             <span className="text-muted">
-              {entry.actions.length} actions · {formatBytes(entry.totals.estimatedDiskBytes)} estimated · {entry.systemChanges} changes
+              {t('{actions} actions · {size} estimated · {changes} changes', { actions: entry.actions.length, size: formatBytes(entry.totals.estimatedDiskBytes), changes: entry.systemChanges })}
             </span>
           </li>
         ))}

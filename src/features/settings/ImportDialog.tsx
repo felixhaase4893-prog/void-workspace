@@ -9,16 +9,15 @@ import { ANALYZED_COLLECTIONS, analyzeImport, countItems, type ConflictPolicy, t
 import { WORKSPACE_SCHEMA_VERSION } from '../../domain/models';
 import type { ParsedBackup } from '../../storage/backup';
 import { useWorkspace, useWorkspaceActions } from '../../state/workspaceContext';
+import { formatDateTime, localized, t, tn } from '../../i18n/translate';
 
-const COLLECTION_LABELS = { projects: 'Projects', tasks: 'Tasks', notes: 'Notes', snippets: 'Snippets', bugs: 'Bugs', tags: 'Tags' } as const;
+const COLLECTION_LABELS = localized({ projects: 'Projects', tasks: 'Tasks', notes: 'Notes', snippets: 'Snippets', bugs: 'Bugs', tags: 'Tags' });
 
-const CONFLICT_OPTIONS: Array<{ value: ConflictPolicy; label: string; hint: string }> = [
-  { value: 'keep-current', label: 'Keep my current version', hint: 'Differing items from the file are skipped.' },
-  { value: 'use-imported', label: 'Use the version from the file', hint: 'Your current version of those items is replaced.' },
-  { value: 'keep-both', label: 'Keep both', hint: 'Items from the file are added as copies with new IDs.' },
+const conflictOptions = (): Array<{ value: ConflictPolicy; label: string; hint: string }> => [
+  { value: 'keep-current', label: t('Keep my current version'), hint: t('Differing items from the file are skipped.') },
+  { value: 'use-imported', label: t('Use the version from the file'), hint: t('Your current version of those items is replaced.') },
+  { value: 'keep-both', label: t('Keep both'), hint: t('Items from the file are added as copies with new IDs.') },
 ];
-
-const dateFormatter = new Intl.DateTimeFormat('en', { dateStyle: 'medium', timeStyle: 'short' });
 
 interface ImportDialogProps {
   fileName: string;
@@ -29,14 +28,14 @@ interface ImportDialogProps {
 
 function summarize(stats: ImportStats): string {
   const parts = [
-    stats.added > 0 && `${stats.added} added`,
-    stats.replaced > 0 && `${stats.replaced} replaced`,
-    stats.copied > 0 && `${stats.copied} added as copies`,
-    stats.skipped > 0 && `${stats.skipped} skipped`,
-    stats.tagsAdded > 0 && `${stats.tagsAdded} new ${stats.tagsAdded === 1 ? 'tag' : 'tags'}`,
-    stats.tagsUpdated > 0 && `${stats.tagsUpdated} ${stats.tagsUpdated === 1 ? 'tag' : 'tags'} updated`,
+    stats.added > 0 && t('{count} added', { count: stats.added }),
+    stats.replaced > 0 && t('{count} replaced', { count: stats.replaced }),
+    stats.copied > 0 && t('{count} added as copies', { count: stats.copied }),
+    stats.skipped > 0 && t('{count} skipped', { count: stats.skipped }),
+    stats.tagsAdded > 0 && tn('{count} new tag|{count} new tags', stats.tagsAdded),
+    stats.tagsUpdated > 0 && tn('{count} tag updated|{count} tags updated', stats.tagsUpdated),
   ].filter(Boolean);
-  return parts.length > 0 ? parts.join(', ') : 'nothing changed';
+  return parts.length > 0 ? parts.join(', ') : t('nothing changed');
 }
 
 /** Shows what a backup contains and how it would be imported, and only imports after confirmation. */
@@ -73,7 +72,7 @@ export function ImportDialog({ fileName, backup, onClose, onExportCurrent }: Imp
       setError(result.error.message);
       return;
     }
-    showToast(mode === 'replace' ? `Data replaced: ${importCount} items imported.` : `Import complete: ${summarize(result.value)}.`);
+    showToast(mode === 'replace' ? t('Data replaced: {count} items imported.', { count: importCount }) : t('Import complete: {summary}.', { summary: summarize(result.value) }));
     onClose();
   };
 
@@ -81,43 +80,43 @@ export function ImportDialog({ fileName, backup, onClose, onExportCurrent }: Imp
     <Dialog
       open
       onClose={onClose}
-      title="Import backup"
-      description="Check what the file contains before anything changes."
+      title={t('Import backup')}
+      description={t('Check what the file contains before anything changes.')}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} data-autofocus>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant={mode === 'replace' ? 'danger' : 'primary'} disabled={!canImport || pending} onClick={() => void confirm()}>
-            {pending ? 'Importing…' : mode === 'replace' ? 'Replace all data' : 'Import'}
+            {pending ? t('Importing…') : mode === 'replace' ? t('Replace all data') : t('Import')}
           </Button>
         </>
       }
     >
       <div className="space-y-5 text-[13px]">
         <dl className="grid gap-x-6 gap-y-1 rounded-lg bg-raised px-3 py-2.5 sm:grid-cols-[auto_1fr]">
-          <dt className="text-subtle">File</dt>
+          <dt className="text-subtle">{t('File')}</dt>
           <dd className="truncate font-mono text-fg">{fileName}</dd>
-          <dt className="text-subtle">Exported</dt>
-          <dd className="text-fg">{backup.exportedAt ? dateFormatter.format(new Date(backup.exportedAt)) : 'Unknown (older VOID export)'}</dd>
-          <dt className="text-subtle">Data format</dt>
+          <dt className="text-subtle">{t('Exported')}</dt>
+          <dd className="text-fg">{backup.exportedAt ? formatDateTime(backup.exportedAt, { dateStyle: 'medium', timeStyle: 'short' }) : t('Unknown (older VOID export)')}</dd>
+          <dt className="text-subtle">{t('Data format')}</dt>
           <dd className="text-fg">
             v{backup.sourceSchemaVersion}
-            {backup.sourceSchemaVersion < WORKSPACE_SCHEMA_VERSION && ` (upgraded to v${WORKSPACE_SCHEMA_VERSION} on import)`}
+            {backup.sourceSchemaVersion < WORKSPACE_SCHEMA_VERSION && t(' (upgraded to v{version} on import)', { version: WORKSPACE_SCHEMA_VERSION })}
           </dd>
         </dl>
 
         <table className="w-full text-left">
-          <caption className="sr-only">Contents of the backup compared with your current data</caption>
+          <caption className="sr-only">{t('Contents of the backup compared with your current data')}</caption>
           <thead className="text-xs text-subtle">
             <tr>
               <th scope="col" className="pb-2 font-normal">
-                Type
+                {t('Type')}
               </th>
-              <Th>In file</Th>
-              <Th>New</Th>
-              <Th>Already here</Th>
-              <Th>Different</Th>
+              <Th>{t('In file')}</Th>
+              <Th>{t('New')}</Th>
+              <Th>{t('Already here')}</Th>
+              <Th>{t('Different')}</Th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line border-t border-line">
@@ -135,27 +134,27 @@ export function ImportDialog({ fileName, backup, onClose, onExportCurrent }: Imp
           </tbody>
         </table>
         {analysis.tags.total > 0 && (
-          <p className="-mt-3 text-xs text-subtle">Tags are matched by name, ignoring case: a tag you already have is reused instead of added twice.</p>
+          <p className="-mt-3 text-xs text-subtle">{t('Tags are matched by name, ignoring case: a tag you already have is reused instead of added twice.')}</p>
         )}
 
         {backup.clearedReferences > 0 && (
-          <Alert tone="warning" title={`${backup.clearedReferences} items referred to projects missing from the file.`}>
-            They will be imported without a project.
+          <Alert tone="warning" title={t('{count} items referred to projects missing from the file.', { count: backup.clearedReferences })}>
+            {t('They will be imported without a project.')}
           </Alert>
         )}
 
         <fieldset className="space-y-2">
-          <legend className="mb-2 font-medium text-fg">How should the data be imported?</legend>
-          <Choice name="import-mode" checked={mode === 'merge'} onChange={() => setMode('merge')} label="Merge into my current data" hint="Recommended. New items are added; nothing is deleted." />
-          <Choice name="import-mode" checked={mode === 'replace'} onChange={() => setMode('replace')} label="Replace all my current data" hint="Your current data is removed and the file's data is used instead." />
+          <legend className="mb-2 font-medium text-fg">{t('How should the data be imported?')}</legend>
+          <Choice name="import-mode" checked={mode === 'merge'} onChange={() => setMode('merge')} label={t('Merge into my current data')} hint={t('Recommended. New items are added; nothing is deleted.')} />
+          <Choice name="import-mode" checked={mode === 'replace'} onChange={() => setMode('replace')} label={t('Replace all my current data')} hint={t("Your current data is removed and the file's data is used instead.")} />
         </fieldset>
 
         {(backup.clearedTagReferences > 0 || backup.mergedTags > 0) && (
-          <Alert tone="warning" title="Some tags in the file were tidied up.">
+          <Alert tone="warning" title={t('Some tags in the file were tidied up.')}>
             {[
-              backup.mergedTags > 0 && `${backup.mergedTags} duplicate ${backup.mergedTags === 1 ? 'tag was' : 'tags were'} merged with a tag of the same name.`,
+              backup.mergedTags > 0 && tn('{count} duplicate tag was merged with a tag of the same name.|{count} duplicate tags were merged with a tag of the same name.', backup.mergedTags),
               backup.clearedTagReferences > 0 &&
-                `${backup.clearedTagReferences} ${backup.clearedTagReferences === 1 ? 'reference' : 'references'} to tags missing from the file will be left out.`,
+                tn('{count} reference to tags missing from the file will be left out.|{count} references to tags missing from the file will be left out.', backup.clearedTagReferences),
             ]
               .filter(Boolean)
               .join(' ')}
@@ -163,15 +162,15 @@ export function ImportDialog({ fileName, backup, onClose, onExportCurrent }: Imp
         )}
 
         {mode === 'merge' && mergeChangesNothing && (
-          <Alert title="Nothing to import">Everything in this file already exists with the same content. Duplicates are never imported twice.</Alert>
+          <Alert title={t('Nothing to import')}>{t('Everything in this file already exists with the same content. Duplicates are never imported twice.')}</Alert>
         )}
 
         {mode === 'merge' && totals.conflicting > 0 && (
           <fieldset className="space-y-2">
             <legend className="mb-2 font-medium text-fg">
-              {totals.conflicting} {totals.conflicting === 1 ? 'item exists' : 'items exist'} in both, with different content
+              {tn('{count} item exists in both, with different content|{count} items exist in both, with different content', totals.conflicting)}
             </legend>
-            {CONFLICT_OPTIONS.map((option) => (
+            {conflictOptions().map((option) => (
               <Choice key={option.value} name="import-conflicts" checked={conflicts === option.value} onChange={() => setConflicts(option.value)} label={option.label} hint={option.hint} />
             ))}
           </fieldset>
@@ -179,23 +178,23 @@ export function ImportDialog({ fileName, backup, onClose, onExportCurrent }: Imp
 
         {mode === 'replace' && currentCount > 0 && (
           <div className="space-y-3">
-            <Alert tone="danger" title={`This deletes your ${currentCount} current items.`}>
-              Export them first if you might need them again.
+            <Alert tone="danger" title={t('This deletes your {count} current items.', { count: currentCount })}>
+              {t('Export them first if you might need them again.')}
             </Alert>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <label className="flex items-start gap-2.5 text-fg">
                 <input type="checkbox" className="mt-0.5 accent-accent-500" checked={replaceConfirmed} onChange={(event) => setReplaceConfirmed(event.target.checked)} />
-                I understand that my current data will be replaced.
+                {t('I understand that my current data will be replaced.')}
               </label>
               <Button size="sm" icon={<Download />} onClick={onExportCurrent}>
-                Export current data
+                {t('Export current data')}
               </Button>
             </div>
           </div>
         )}
 
         {error && (
-          <Alert tone="danger" title="The import failed. Your existing data was not changed.">
+          <Alert tone="danger" title={t('The import failed. Your existing data was not changed.')}>
             {error}
           </Alert>
         )}

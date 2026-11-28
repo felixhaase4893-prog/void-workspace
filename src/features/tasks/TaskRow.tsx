@@ -13,6 +13,7 @@ import { RowSelectCheckbox } from '../selection/SelectionBar';
 import { PRIORITY_TONES } from '../shared/tones';
 import { TagList } from '../tags/TagList';
 import { DueBadge } from './DueBadge';
+import { t } from '../../i18n/translate';
 
 interface TaskRowProps {
   task: Task;
@@ -27,7 +28,7 @@ export function TaskRow({ task, projectName = null, selection }: TaskRowProps) {
   const today = useToday();
   const done = task.status === 'done';
   const overdue = getDueState(task, today) === 'overdue';
-  const meta = [projectName, task.status === 'in_progress' ? 'In progress' : null, task.description].filter(Boolean).join(' · ');
+  const meta = [projectName, task.status === 'in_progress' ? t('In progress') : null, task.description].filter(Boolean).join(' · ');
   return (
     <li
       onClick={selection ? (event) => selection.onToggle(event.shiftKey) : undefined}
@@ -47,7 +48,7 @@ export function TaskRow({ task, projectName = null, selection }: TaskRowProps) {
           type="button"
           role="checkbox"
           aria-checked={done}
-          aria-label={`Mark “${task.title}” as ${done ? 'not done' : 'done'}`}
+          aria-label={done ? t('Mark “{title}” as not done', { title: task.title }) : t('Mark “{title}” as done', { title: task.title })}
           onClick={() => void setTaskStatus(task.id, done ? 'todo' : 'done')}
           className={cn(
             'mt-0.5 grid size-[18px] shrink-0 place-items-center rounded-[5px] border transition-colors',

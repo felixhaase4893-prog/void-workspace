@@ -2,6 +2,7 @@ import { cn } from '../../lib/cn';
 import { HighlightedText } from '../search/HighlightedText';
 import { TagChip } from './TagChip';
 import { useItemTags } from './useTags';
+import { t, tn } from '../../i18n/translate';
 
 interface TagListProps {
   tagIds: readonly string[] | undefined;
@@ -25,7 +26,7 @@ export function TagList({ tagIds, max, terms, className }: TagListProps) {
   const hidden = tags.length - visible.length;
 
   return (
-    <ul aria-label="Tags" className={cn('flex min-w-0 flex-wrap gap-1', className)}>
+    <ul aria-label={t('Tags')} className={cn('flex min-w-0 flex-wrap gap-1', className)}>
       {visible.map((tag) => (
         <li key={tag.id} className="min-w-0">
           <TagChip name={tag.name} color={tag.color}>
@@ -37,7 +38,7 @@ export function TagList({ tagIds, max, terms, className }: TagListProps) {
         <li title={tags.slice(visible.length).map((tag) => tag.name).join(', ')}>
           <span className="inline-flex h-5 items-center rounded-md border border-line px-1.5 text-[11px] text-subtle">
             +{hidden}
-            <span className="sr-only"> more {hidden === 1 ? 'tag' : 'tags'}</span>
+            <span className="sr-only"> {tn('more tag|more tags', hidden)}</span>
           </span>
         </li>
       )}

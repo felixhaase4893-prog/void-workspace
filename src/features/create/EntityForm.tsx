@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../components/ui/toastContext';
 import type { SaveResult } from '../../state/workspaceContext';
+import { t } from '../../i18n/translate';
 
 interface EntityFormProps {
   submitLabel: string;
@@ -41,7 +42,7 @@ export function EntityForm({ submitLabel, successMessage, onCancel, onSubmit, on
     setPending(true);
     const result = await save;
     if (result.ok) showToast(successMessage);
-    else showToast(`Not saved: ${result.error.message}`, 'danger');
+    else showToast(t('Not saved: {reason}', { reason: result.error.message }), 'danger');
     onSaved();
   };
 
@@ -50,10 +51,10 @@ export function EntityForm({ submitLabel, successMessage, onCancel, onSubmit, on
       {children}
       <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
         <Button variant="ghost" onClick={onCancel}>
-          Cancel
+          {t('Cancel')}
         </Button>
         <Button type="submit" variant="primary" disabled={pending}>
-          {pending ? 'Saving…' : submitLabel}
+          {pending ? t('Saving…') : submitLabel}
         </Button>
       </div>
     </form>

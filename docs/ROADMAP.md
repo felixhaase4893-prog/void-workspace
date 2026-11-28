@@ -56,8 +56,13 @@
 - Deep scan: performance hogs with step-by-step fixes, top CPU/GPU/RAM/network users, one-click open for folders and Windows settings
 - Optimizer UI in English
 
+## Update 4.5 ✅ (Languages)
+
+- The whole app in English, Español, 简体中文 and Deutsch, chosen in *Settings → Language* (system language on first start)
+- Code Tester findings and PC Optimizer results are translated too; dates, numbers and sizes follow the language (see [UPDATE-4.5.md](UPDATE-4.5.md))
+
 ## Später
 
 - Befehlspalette (Aktionen zusätzlich zur Suche)
-- Light Theme, i18n (Deutsch/Englisch)
+- Light Theme
 - IndexedDB-Storage für größere Datenmengen

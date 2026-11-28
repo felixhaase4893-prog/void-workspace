@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 
 import { cn } from '../../lib/cn';
 import { Kbd } from './Kbd';
+import { t } from '../../i18n/translate';
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -26,8 +27,8 @@ export function EmptyState({ icon: Icon, title, description, action, quickAddHin
       {action && <div className="mt-5">{action}</div>}
       {quickAddHint && (
         <p className="mt-4 flex items-center gap-1.5 text-[11px] text-subtle">
-          Tip: <Kbd>Ctrl</Kbd>
-          <Kbd>N</Kbd> adds anything from any page.
+          {t('Tip:')} <Kbd>Ctrl</Kbd>
+          <Kbd>N</Kbd> {t('adds anything from any page.')}
         </p>
       )}
     </div>

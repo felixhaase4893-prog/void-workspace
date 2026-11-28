@@ -1,26 +1,28 @@
 import { Plus } from 'lucide-react';
 
 import { ENTITY_ICONS } from '../../app/navigation';
-import { ENTITY_LABELS } from '../../domain/labels';
 import type { EntityType } from '../../domain/models';
 import { useEntityDialogs } from '../create/entityDialogContext';
+import { localized, t, type MessageKey } from '../../i18n/translate';
 
 const ORDER: EntityType[] = ['project', 'task', 'note', 'snippet', 'bug'];
 
-const HINTS: Record<EntityType, string> = {
+const HINTS = localized<EntityType>({
   project: 'Group your work',
   task: 'Track what is next',
   note: 'Write it down',
   snippet: 'Keep useful code',
   bug: 'Log a bug',
-};
+});
+
+const NEW_LABELS: Record<EntityType, MessageKey> = { project: 'New project', task: 'New task', note: 'New note', snippet: 'New snippet', bug: 'New bug' };
 
 export function QuickActions() {
   const { openCreateDialog } = useEntityDialogs();
   return (
     <section aria-labelledby="quick-actions-heading">
       <h2 id="quick-actions-heading" className="sr-only">
-        Quick actions
+        {t('Quick actions')}
       </h2>
       <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
         {ORDER.map((type) => {
@@ -38,7 +40,7 @@ export function QuickActions() {
                 <span className="min-w-0">
                   <span className="flex items-center gap-1 text-[13px] font-medium whitespace-nowrap text-fg">
                     <Plus className="hidden size-3.5 text-subtle sm:block" aria-hidden="true" />
-                    New {ENTITY_LABELS[type].toLowerCase()}
+                    {t(NEW_LABELS[type])}
                   </span>
                   <span className="block truncate text-xs text-subtle">{HINTS[type]}</span>
                 </span>

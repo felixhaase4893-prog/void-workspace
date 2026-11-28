@@ -2,6 +2,7 @@ import { ShieldCheck } from 'lucide-react';
 
 import { LogoMark } from '../../components/brand/Logo';
 import { QuickActions } from './QuickActions';
+import { t } from '../../i18n/translate';
 
 /** First-run state: explains VOID and offers the five ways to start. */
 export function WelcomePanel() {
@@ -15,15 +16,14 @@ export function WelcomePanel() {
         <div className="relative max-w-xl">
           <LogoMark className="mb-6 size-10" />
           <h2 id="welcome-heading" className="text-xl font-semibold tracking-tight text-fg sm:text-2xl">
-            Your workspace is empty. Let&apos;s fill the void.
+            {t("Your workspace is empty. Let's fill the void.")}
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-muted">
-            VOID keeps your projects, tasks, technical notes and reusable snippets in one calm place, whether you ship web apps, games or Roblox experiences.
-            Pick something to start with.
+            {t('VOID keeps your projects, tasks, technical notes and reusable snippets in one calm place, whether you ship web apps, games or Roblox experiences. Pick something to start with.')}
           </p>
           <p className="mt-5 flex items-center gap-2 text-xs text-subtle">
             <ShieldCheck className="size-4 text-accent-300" aria-hidden="true" />
-            No account, no cloud. Everything stays on this device.
+            {t('No account, no cloud. Everything stays on this device.')}
           </p>
         </div>
       </div>

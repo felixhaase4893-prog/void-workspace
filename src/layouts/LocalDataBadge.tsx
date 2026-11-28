@@ -3,10 +3,11 @@ import { Link } from 'react-router-dom';
 
 import { cn } from '../lib/cn';
 import { useWorkspaceContext } from '../state/workspaceContext';
+import { t } from '../i18n/translate';
 
 export function LocalDataBadge({ responsive = false }: { responsive?: boolean }) {
   const { repository } = useWorkspaceContext();
-  const text = repository.persistent ? 'Saved on this device' : 'Not saved: storage unavailable';
+  const text = repository.persistent ? t('Saved on this device') : t('Not saved: storage unavailable');
   return (
     <Link
       to="/settings"

@@ -9,6 +9,7 @@ import { ItemActions } from '../create/ItemActions';
 import { FavoriteButton } from '../favorites/FavoriteButton';
 import { TagList } from '../tags/TagList';
 import { CopyButton } from './CopyButton';
+import { t } from '../../i18n/translate';
 
 export function SnippetCard({ snippet, projectName = null }: { snippet: Snippet; projectName?: string | null }) {
   const meta = [projectName, snippet.description].filter(Boolean).join(' · ');
@@ -27,11 +28,11 @@ export function SnippetCard({ snippet, projectName = null }: { snippet: Snippet;
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <FavoriteButton type="snippet" id={snippet.id} title={snippet.title} favorite={snippet.favorite} />
-          <CopyButton text={snippet.code} label={`Copy ${snippet.title}`} />
+          <CopyButton text={snippet.code} label={t('Copy {title}', { title: snippet.title })} />
           <Link
             to={`/code-tester?snippet=${encodeURIComponent(snippet.id)}`}
-            aria-label={`Open ${snippet.title} in the Code Tester`}
-            title="Open in the Code Tester"
+            aria-label={t('Open {title} in the Code Tester', { title: snippet.title })}
+            title={t('Open in the Code Tester')}
             className="inline-flex size-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-raised hover:text-fg [&_svg]:size-4"
           >
             <FlaskConical aria-hidden="true" />

@@ -1,5 +1,6 @@
 import { BUG_PRIORITY_LABELS, BUG_STATUS_LABELS, PROJECT_KIND_LABELS, PROJECT_STATUS_LABELS, TASK_PRIORITY_LABELS, TASK_STATUS_LABELS } from './labels';
 import type { EntityType, Workspace } from './models';
+import { t } from '../i18n/translate';
 
 /**
  * Local full-text search over the workspace. Pure functions only: the index is
@@ -48,7 +49,7 @@ export interface SearchResult {
   tagIds: string[];
   /** Short excerpt around the first match outside the title, if any. */
   context: string | null;
-  /** Which field the context comes from, e.g. "Code". */
+  /** Which field the context comes from, e.g. t('Code'). */
   contextLabel: string | null;
   score: number;
 }
@@ -111,7 +112,7 @@ export function buildSearchIndex(workspace: Partial<Workspace> | null | undefine
   }
   const tagsOf = (tagIds: unknown) => {
     const ids = textList(tagIds).filter((id) => tagNames.has(id));
-    return { tagIds: ids, field: field('Tags', ids.map((id) => tagNames.get(id) ?? '').join(', '), 5) };
+    return { tagIds: ids, field: field(t('Tags'), ids.map((id) => tagNames.get(id) ?? '').join(', '), 5) };
   };
 
   const projectOf = (projectId: unknown) => {
@@ -127,15 +128,15 @@ export function buildSearchIndex(workspace: Partial<Workspace> | null | undefine
     const tags = tagsOf(project.tagIds);
     index.push(
       entry(
-        { type: 'project', id: project.id, title: text(project.name) || 'Untitled project', projectId: null, projectName: null, tagIds: tags.tagIds, updatedAt: text(project.updatedAt) },
+        { type: 'project', id: project.id, title: text(project.name) || t('Untitled project'), projectId: null, projectName: null, tagIds: tags.tagIds, updatedAt: text(project.updatedAt) },
         [
-          field('Name', text(project.name), 10),
+          field(t('Name'), text(project.name), 10),
           tags.field,
-          field('Description', text(project.description), 3),
-          field('Technologies', textList(project.technologies).join(', '), 5),
-          field('Type', PROJECT_KIND_LABELS[project.kind] ?? '', 2),
-          field('Status', PROJECT_STATUS_LABELS[project.status] ?? '', 2),
-          field('Links', links.map((link) => [text(link?.label), text(link?.url)].filter(Boolean).join(' ')).join(', '), 1),
+          field(t('Description'), text(project.description), 3),
+          field(t('Technologies'), textList(project.technologies).join(', '), 5),
+          field(t('Type'), PROJECT_KIND_LABELS[project.kind] ?? '', 2),
+          field(t('Status'), PROJECT_STATUS_LABELS[project.status] ?? '', 2),
+          field(t('Links'), links.map((link) => [text(link?.label), text(link?.url)].filter(Boolean).join(' ')).join(', '), 1),
         ],
       ),
     );
@@ -147,14 +148,14 @@ export function buildSearchIndex(workspace: Partial<Workspace> | null | undefine
     const tags = tagsOf(task.tagIds);
     index.push(
       entry(
-        { type: 'task', id: task.id, title: text(task.title) || 'Untitled task', updatedAt: text(task.updatedAt), tagIds: tags.tagIds, ...project },
+        { type: 'task', id: task.id, title: text(task.title) || t('Untitled task'), updatedAt: text(task.updatedAt), tagIds: tags.tagIds, ...project },
         [
-          field('Title', text(task.title), 10),
+          field(t('Title'), text(task.title), 10),
           tags.field,
-          field('Description', text(task.description), 3),
-          field('Status', TASK_STATUS_LABELS[task.status] ?? '', 2),
-          field('Priority', TASK_PRIORITY_LABELS[task.priority] ?? '', 2),
-          field('Project', project.projectName ?? '', 2),
+          field(t('Description'), text(task.description), 3),
+          field(t('Status'), TASK_STATUS_LABELS[task.status] ?? '', 2),
+          field(t('Priority'), TASK_PRIORITY_LABELS[task.priority] ?? '', 2),
+          field(t('Project'), project.projectName ?? '', 2),
         ],
       ),
     );
@@ -166,8 +167,8 @@ export function buildSearchIndex(workspace: Partial<Workspace> | null | undefine
     const tags = tagsOf(note.tagIds);
     index.push(
       entry(
-        { type: 'note', id: note.id, title: text(note.title) || 'Untitled note', updatedAt: text(note.updatedAt), tagIds: tags.tagIds, ...project },
-        [field('Title', text(note.title), 10), tags.field, field('Content', text(note.content), 3), field('Project', project.projectName ?? '', 2)],
+        { type: 'note', id: note.id, title: text(note.title) || t('Untitled note'), updatedAt: text(note.updatedAt), tagIds: tags.tagIds, ...project },
+        [field(t('Title'), text(note.title), 10), tags.field, field(t('Content'), text(note.content), 3), field(t('Project'), project.projectName ?? '', 2)],
       ),
     );
   }
@@ -178,14 +179,14 @@ export function buildSearchIndex(workspace: Partial<Workspace> | null | undefine
     const tags = tagsOf(snippet.tagIds);
     index.push(
       entry(
-        { type: 'snippet', id: snippet.id, title: text(snippet.title) || 'Untitled snippet', updatedAt: text(snippet.updatedAt), tagIds: tags.tagIds, ...project },
+        { type: 'snippet', id: snippet.id, title: text(snippet.title) || t('Untitled snippet'), updatedAt: text(snippet.updatedAt), tagIds: tags.tagIds, ...project },
         [
-          field('Title', text(snippet.title), 10),
+          field(t('Title'), text(snippet.title), 10),
           tags.field,
-          field('Description', text(snippet.description), 3),
-          field('Language', text(snippet.language), 4),
-          field('Code', text(snippet.code), 2),
-          field('Project', project.projectName ?? '', 2),
+          field(t('Description'), text(snippet.description), 3),
+          field(t('Language'), text(snippet.language), 4),
+          field(t('Code'), text(snippet.code), 2),
+          field(t('Project'), project.projectName ?? '', 2),
         ],
       ),
     );
@@ -197,14 +198,14 @@ export function buildSearchIndex(workspace: Partial<Workspace> | null | undefine
     const tags = tagsOf(bug.tagIds);
     index.push(
       entry(
-        { type: 'bug', id: bug.id, title: text(bug.title) || 'Untitled bug', updatedAt: text(bug.updatedAt), tagIds: tags.tagIds, ...project },
+        { type: 'bug', id: bug.id, title: text(bug.title) || t('Untitled bug'), updatedAt: text(bug.updatedAt), tagIds: tags.tagIds, ...project },
         [
-          field('Title', text(bug.title), 10),
+          field(t('Title'), text(bug.title), 10),
           tags.field,
-          field('Description', text(bug.description), 3),
-          field('Status', BUG_STATUS_LABELS[bug.status] ?? '', 2),
-          field('Priority', BUG_PRIORITY_LABELS[bug.priority] ?? '', 2),
-          field('Project', project.projectName ?? '', 2),
+          field(t('Description'), text(bug.description), 3),
+          field(t('Status'), BUG_STATUS_LABELS[bug.status] ?? '', 2),
+          field(t('Priority'), BUG_PRIORITY_LABELS[bug.priority] ?? '', 2),
+          field(t('Project'), project.projectName ?? '', 2),
         ],
       ),
     );
@@ -242,7 +243,7 @@ function scoreEntry(item: SearchIndexEntry, terms: string[], phrase: string): nu
 function contextFor(item: SearchIndexEntry, terms: string[]): { context: string | null; contextLabel: string | null } {
   for (const candidate of item.fields.slice(1)) {
     // The project name and the tags are already shown separately.
-    if (candidate.label === 'Project' || candidate.label === 'Tags') continue;
+    if (candidate.label === t('Project') || candidate.label === t('Tags')) continue;
     let position = -1;
     for (const term of terms) {
       const found = candidate.lower.indexOf(term);

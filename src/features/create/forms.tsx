@@ -27,6 +27,7 @@ import { TagField } from '../tags/TagSelector';
 import { EntityForm } from './EntityForm';
 import { ProjectReferenceSelect } from './ProjectReferenceSelect';
 import type { CreatePreset } from './entityDialogContext';
+import { t } from '../../i18n/translate';
 
 /** Stored tag ids as the form's starting selection. */
 const tagSelection = (entity: { tagIds: string[] } | undefined): TagSelection[] => entity?.tagIds.map((id) => ({ id })) ?? [];
@@ -51,8 +52,8 @@ export function ProjectForm({ onDone, entity, preset }: EntityFormComponentProps
   });
   return (
     <EntityForm
-      submitLabel={entity ? 'Save changes' : 'Create project'}
-      successMessage={entity ? 'Project updated.' : 'Project created.'}
+      submitLabel={entity ? t('Save changes') : t('Create project')}
+      successMessage={entity ? t('Project updated.') : t('Project created.')}
       onCancel={onDone}
       onSaved={onDone}
       onSubmit={() => {
@@ -61,13 +62,13 @@ export function ProjectForm({ onDone, entity, preset }: EntityFormComponentProps
         return entity ? updateProject(entity.id, input) : createProject(input);
       }}
     >
-      <Field label="Name" error={form.errors.name}>
+      <Field label={t('Name')} error={form.errors.name}>
         {(field) => (
-          <Input {...field} data-autofocus value={form.values.name} onChange={(e) => form.setValue('name', e.target.value)} placeholder="e.g. Obby Rush" autoComplete="off" />
+          <Input {...field} data-autofocus value={form.values.name} onChange={(e) => form.setValue('name', e.target.value)} placeholder={t('e.g. Obby Rush')} autoComplete="off" />
         )}
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Type" error={form.errors.kind}>
+        <Field label={t('Type')} error={form.errors.kind}>
           {(field) => (
             <Select {...field} value={form.values.kind} onChange={(e) => form.setValue('kind', e.target.value)}>
               {PROJECT_KINDS.map((kind) => (
@@ -78,7 +79,7 @@ export function ProjectForm({ onDone, entity, preset }: EntityFormComponentProps
             </Select>
           )}
         </Field>
-        <Field label="Status" error={form.errors.status}>
+        <Field label={t('Status')} error={form.errors.status}>
           {(field) => (
             <Select {...field} value={form.values.status} onChange={(e) => form.setValue('status', e.target.value)}>
               {PROJECT_STATUSES.map((status) => (
@@ -90,18 +91,18 @@ export function ProjectForm({ onDone, entity, preset }: EntityFormComponentProps
           )}
         </Field>
       </div>
-      <Field label="Description" optional error={form.errors.description}>
+      <Field label={t('Description')} optional error={form.errors.description}>
         {(field) => (
-          <Textarea {...field} value={form.values.description} onChange={(e) => form.setValue('description', e.target.value)} placeholder="What are you building?" />
+          <Textarea {...field} value={form.values.description} onChange={(e) => form.setValue('description', e.target.value)} placeholder={t('What are you building?')} />
         )}
       </Field>
-      <Field label="Technologies" optional error={form.errors.technologies} hint="Separate with commas, e.g. React, TypeScript, Vite.">
+      <Field label={t('Technologies')} optional error={form.errors.technologies} hint={t('Separate with commas, e.g. React, TypeScript, Vite.')}>
         {(field) => (
           <Input {...field} value={form.values.technologies} onChange={(e) => form.setValue('technologies', e.target.value)} autoComplete="off" />
         )}
       </Field>
       <TagField value={form.values.tags} error={form.errors.tags} onChange={(tags) => form.setValue('tags', tags)} />
-      <Field label="Links" optional error={form.errors.links} hint="One per line: https://… or Label | https://…">
+      <Field label={t('Links')} optional error={form.errors.links} hint="One per line: https://… or Label | https://…">
         {(field) => (
           <Textarea
             {...field}
@@ -130,8 +131,8 @@ export function TaskForm({ onDone, entity, preset }: EntityFormComponentProps<Ta
   });
   return (
     <EntityForm
-      submitLabel={entity ? 'Save changes' : 'Create task'}
-      successMessage={entity ? 'Task updated.' : 'Task created.'}
+      submitLabel={entity ? t('Save changes') : t('Create task')}
+      successMessage={entity ? t('Task updated.') : t('Task created.')}
       onCancel={onDone}
       onSaved={onDone}
       onSubmit={() => {
@@ -140,14 +141,14 @@ export function TaskForm({ onDone, entity, preset }: EntityFormComponentProps<Ta
         return entity ? updateTask(entity.id, input) : createTask(input);
       }}
     >
-      <Field label="Title" error={form.errors.title}>
+      <Field label={t('Title')} error={form.errors.title}>
         {(field) => (
-          <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder="e.g. Fix jump buffering" autoComplete="off" />
+          <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder={t('e.g. Fix jump buffering')} autoComplete="off" />
         )}
       </Field>
       <ProjectReferenceSelect value={form.values.projectId} error={form.errors.projectId} onChange={(v) => form.setValue('projectId', v)} />
       <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="Status" error={form.errors.status}>
+        <Field label={t('Status')} error={form.errors.status}>
           {(field) => (
             <Select {...field} value={form.values.status} onChange={(e) => form.setValue('status', e.target.value)}>
               {TASK_STATUSES.map((status) => (
@@ -158,7 +159,7 @@ export function TaskForm({ onDone, entity, preset }: EntityFormComponentProps<Ta
             </Select>
           )}
         </Field>
-        <Field label="Priority" error={form.errors.priority}>
+        <Field label={t('Priority')} error={form.errors.priority}>
           {(field) => (
             <Select {...field} value={form.values.priority} onChange={(e) => form.setValue('priority', e.target.value)}>
               {TASK_PRIORITIES.map((priority) => (
@@ -171,7 +172,7 @@ export function TaskForm({ onDone, entity, preset }: EntityFormComponentProps<Ta
         </Field>
         <DueDateField value={form.values.dueDate} error={form.errors.dueDate} onChange={(value) => form.setValue('dueDate', value)} />
       </div>
-      <Field label="Description" optional error={form.errors.description}>
+      <Field label={t('Description')} optional error={form.errors.description}>
         {(field) => (
           <Textarea {...field} value={form.values.description} onChange={(e) => form.setValue('description', e.target.value)} />
         )}
@@ -191,8 +192,8 @@ export function NoteForm({ onDone, entity, preset }: EntityFormComponentProps<No
   });
   return (
     <EntityForm
-      submitLabel={entity ? 'Save changes' : 'Create note'}
-      successMessage={entity ? 'Note updated.' : 'Note created.'}
+      submitLabel={entity ? t('Save changes') : t('Create note')}
+      successMessage={entity ? t('Note updated.') : t('Note created.')}
       onCancel={onDone}
       onSaved={onDone}
       onSubmit={() => {
@@ -201,13 +202,13 @@ export function NoteForm({ onDone, entity, preset }: EntityFormComponentProps<No
         return entity ? updateNote(entity.id, input) : createNote(input);
       }}
     >
-      <Field label="Title" error={form.errors.title}>
+      <Field label={t('Title')} error={form.errors.title}>
         {(field) => (
-          <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder="e.g. Save system architecture" autoComplete="off" />
+          <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder={t('e.g. Save system architecture')} autoComplete="off" />
         )}
       </Field>
       <ProjectReferenceSelect value={form.values.projectId} error={form.errors.projectId} onChange={(v) => form.setValue('projectId', v)} />
-      <Field label="Content" optional error={form.errors.content} hint="Markdown supported: # headings, **bold**, *italic*, lists, `code`, ``` code blocks and [links](https://…).">
+      <Field label={t('Content')} optional error={form.errors.content} hint={t('Markdown supported: # headings, **bold**, *italic*, lists, `code`, ``` code blocks and [links](https://…).')}>
         {(field) => <MarkdownEditor field={field} value={form.values.content} onChange={(content) => form.setValue('content', content)} />}
       </Field>
       <TagField value={form.values.tags} error={form.errors.tags} onChange={(tags) => form.setValue('tags', tags)} />
@@ -227,8 +228,8 @@ export function SnippetForm({ onDone, entity, preset }: EntityFormComponentProps
   });
   return (
     <EntityForm
-      submitLabel={entity ? 'Save changes' : 'Save snippet'}
-      successMessage={entity ? 'Snippet updated.' : 'Snippet saved.'}
+      submitLabel={entity ? t('Save changes') : t('Save snippet')}
+      successMessage={entity ? t('Snippet updated.') : t('Snippet saved.')}
       onCancel={onDone}
       onSaved={onDone}
       onSubmit={() => {
@@ -238,12 +239,12 @@ export function SnippetForm({ onDone, entity, preset }: EntityFormComponentProps
       }}
     >
       <div className="grid gap-4 sm:grid-cols-[1fr_10rem]">
-        <Field label="Title" error={form.errors.title}>
+        <Field label={t('Title')} error={form.errors.title}>
           {(field) => (
-            <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder="e.g. Debounce hook" autoComplete="off" />
+            <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder={t('e.g. Debounce hook')} autoComplete="off" />
           )}
         </Field>
-        <Field label="Language" error={form.errors.language}>
+        <Field label={t('Language')} error={form.errors.language}>
           {(field) => (
             <Input {...field} list="snippet-languages" value={form.values.language} onChange={(e) => form.setValue('language', e.target.value)} placeholder="TypeScript" autoComplete="off" />
           )}
@@ -254,7 +255,7 @@ export function SnippetForm({ onDone, entity, preset }: EntityFormComponentProps
           <option key={language} value={language} />
         ))}
       </datalist>
-      <Field label="Code" error={form.errors.code}>
+      <Field label={t('Code')} error={form.errors.code}>
         {(field) => (
           <Textarea
             {...field}
@@ -266,7 +267,7 @@ export function SnippetForm({ onDone, entity, preset }: EntityFormComponentProps
         )}
       </Field>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Description" optional error={form.errors.description}>
+        <Field label={t('Description')} optional error={form.errors.description}>
           {(field) => (
             <Input {...field} value={form.values.description} onChange={(e) => form.setValue('description', e.target.value)} />
           )}
@@ -291,8 +292,8 @@ export function BugForm({ onDone, entity, preset }: EntityFormComponentProps<Bug
   });
   return (
     <EntityForm
-      submitLabel={entity ? 'Save changes' : 'Create bug'}
-      successMessage={entity ? 'Bug updated.' : 'Bug created.'}
+      submitLabel={entity ? t('Save changes') : t('Create bug')}
+      successMessage={entity ? t('Bug updated.') : t('Bug created.')}
       onCancel={onDone}
       onSaved={onDone}
       onSubmit={() => {
@@ -301,14 +302,14 @@ export function BugForm({ onDone, entity, preset }: EntityFormComponentProps<Bug
         return entity ? updateBug(entity.id, input) : createBug(input);
       }}
     >
-      <Field label="Title" error={form.errors.title}>
+      <Field label={t('Title')} error={form.errors.title}>
         {(field) => (
-          <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder="e.g. Player falls through the floor" autoComplete="off" />
+          <Input {...field} data-autofocus value={form.values.title} onChange={(e) => form.setValue('title', e.target.value)} placeholder={t('e.g. Player falls through the floor')} autoComplete="off" />
         )}
       </Field>
       <ProjectReferenceSelect value={form.values.projectId} error={form.errors.projectId} onChange={(v) => form.setValue('projectId', v)} />
       <div className="grid gap-4 sm:grid-cols-3">
-        <Field label="Status" error={form.errors.status}>
+        <Field label={t('Status')} error={form.errors.status}>
           {(field) => (
             <Select {...field} value={form.values.status} onChange={(e) => form.setValue('status', e.target.value)}>
               {BUG_STATUSES.map((status) => (
@@ -319,7 +320,7 @@ export function BugForm({ onDone, entity, preset }: EntityFormComponentProps<Bug
             </Select>
           )}
         </Field>
-        <Field label="Priority" error={form.errors.priority}>
+        <Field label={t('Priority')} error={form.errors.priority}>
           {(field) => (
             <Select {...field} value={form.values.priority} onChange={(e) => form.setValue('priority', e.target.value)}>
               {BUG_PRIORITIES.map((priority) => (
@@ -332,7 +333,7 @@ export function BugForm({ onDone, entity, preset }: EntityFormComponentProps<Bug
         </Field>
         <DueDateField value={form.values.dueDate} error={form.errors.dueDate} onChange={(value) => form.setValue('dueDate', value)} />
       </div>
-      <Field label="Description" optional error={form.errors.description} hint="What happens, what you expected, and how to reproduce it.">
+      <Field label={t('Description')} optional error={form.errors.description} hint={t('What happens, what you expected, and how to reproduce it.')}>
         {(field) => (
           <Textarea {...field} value={form.values.description} onChange={(e) => form.setValue('description', e.target.value)} />
         )}
@@ -345,7 +346,7 @@ export function BugForm({ onDone, entity, preset }: EntityFormComponentProps<Bug
 /** A native date picker; leaving it empty means "no due date". */
 function DueDateField({ value, error, onChange }: { value: string; error: string | undefined; onChange: (value: string) => void }) {
   return (
-    <Field label="Due date" optional error={error}>
+    <Field label={t('Due date')} optional error={error}>
       {(field) => <Input {...field} type="date" value={value} onChange={(e) => onChange(e.target.value)} className="[color-scheme:dark]" />}
     </Field>
   );

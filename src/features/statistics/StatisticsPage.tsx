@@ -12,8 +12,10 @@ import { useToday } from '../../hooks/useToday';
 import { cn } from '../../lib/cn';
 import { useWorkspace } from '../../state/workspaceContext';
 import { BarChart } from './BarChart';
+import { type MessageKey, t, tn } from '../../i18n/translate';
 
-const BUCKET_WORD = { day: 'day', week: 'week', month: 'month' } as const;
+const TASKS_PER: Record<'day' | 'week' | 'month', MessageKey> = { day: 'Created and completed per day', week: 'Created and completed per week', month: 'Created and completed per month' };
+const BUGS_PER: Record<'day' | 'week' | 'month', MessageKey> = { day: 'Reported and closed per day', week: 'Reported and closed per week', month: 'Reported and closed per month' };
 
 /**
  * Detailed statistics, computed from the local workspace on every render, so
@@ -29,14 +31,14 @@ export default function StatisticsPage() {
 
   return (
     <>
-      <PageHeader title="Statistics" description="Your tasks, bugs and projects, calculated from the data on this device." />
+      <PageHeader title={t('Statistics')} description={t('Your tasks, bugs and projects, calculated from the data on this device.')} />
       {empty ? (
         <Card>
-          <EmptyState icon={ChartColumn} title="No data yet" description="Statistics appear once you have projects, tasks or bugs. Nothing here is estimated." quickAddHint />
+          <EmptyState icon={ChartColumn} title={t('No data yet')} description={t('Statistics appear once you have projects, tasks or bugs. Nothing here is estimated.')} quickAddHint />
         </Card>
       ) : (
         <div className="space-y-6">
-          <div role="radiogroup" aria-label="Period" className="inline-flex flex-wrap rounded-lg border border-line bg-surface p-0.5">
+          <div role="radiogroup" aria-label={t('Period')} className="inline-flex flex-wrap rounded-lg border border-line bg-surface p-0.5">
             {STATS_RANGES.map((entry) => (
               <button
                 key={entry}
@@ -53,29 +55,29 @@ export default function StatisticsPage() {
 
           <section aria-labelledby="stats-tasks" className="space-y-3">
             <h2 id="stats-tasks" className="text-sm font-semibold text-fg">
-              Tasks
+              {t('Tasks')}
             </h2>
             <Tiles
               items={[
-                { label: 'Open now', value: stats.tasks.open, hint: stats.tasks.inProgress > 0 ? `${stats.tasks.inProgress} in progress` : undefined },
-                { label: 'Done in total', value: stats.tasks.done },
-                { label: 'Created in period', value: stats.tasks.createdInRange },
-                { label: 'Completed in period', value: stats.tasks.completedInRange },
+                { label: t('Open now'), value: stats.tasks.open, hint: stats.tasks.inProgress > 0 ? `${stats.tasks.inProgress} in progress` : undefined },
+                { label: t('Done in total'), value: stats.tasks.done },
+                { label: t('Created in period'), value: stats.tasks.createdInRange },
+                { label: t('Completed in period'), value: stats.tasks.completedInRange },
               ]}
             />
             <ChartCard
-              title="Tasks over time"
-              description={`Created and completed per ${BUCKET_WORD[stats.bucketSize]}`}
+              title={t('Tasks over time')}
+              description={t(TASKS_PER[stats.bucketSize])}
               active={hasActivity(stats, 'tasks')}
-              emptyText="No tasks were created or completed in this period."
-              note={stats.tasks.completedUnknownDate > 0 ? `${stats.tasks.completedUnknownDate} done ${stats.tasks.completedUnknownDate === 1 ? 'task was' : 'tasks were'} completed before VOID recorded completion dates and ${stats.tasks.completedUnknownDate === 1 ? 'is' : 'are'} not in the chart.` : undefined}
+              emptyText={t('No tasks were created or completed in this period.')}
+              note={stats.tasks.completedUnknownDate > 0 ? tn('{count} done task was completed before VOID recorded completion dates and is not in the chart.|{count} done tasks were completed before VOID recorded completion dates and are not in the chart.', stats.tasks.completedUnknownDate) : undefined}
             >
               <BarChart
-                title="Tasks over time"
+                title={t('Tasks over time')}
                 buckets={stats.buckets}
                 series={[
-                  { key: 'tasksCreated', label: 'Created', color: 'bg-accent-500/70' },
-                  { key: 'tasksCompleted', label: 'Completed', color: 'bg-success/80' },
+                  { key: 'tasksCreated', label: t('Created'), color: 'bg-accent-500/70' },
+                  { key: 'tasksCompleted', label: t('Completed'), color: 'bg-success/80' },
                 ]}
               />
             </ChartCard>
@@ -83,29 +85,29 @@ export default function StatisticsPage() {
 
           <section aria-labelledby="stats-bugs" className="space-y-3">
             <h2 id="stats-bugs" className="text-sm font-semibold text-fg">
-              Bugs
+              {t('Bugs')}
             </h2>
             <Tiles
               items={[
-                { label: 'Open now', value: stats.bugs.open, hint: 'Open or in progress' },
-                { label: 'Closed in total', value: stats.bugs.closed, hint: 'Fixed or closed' },
-                { label: 'Reported in period', value: stats.bugs.reportedInRange },
-                { label: 'Closed in period', value: stats.bugs.closedInRange },
+                { label: t('Open now'), value: stats.bugs.open, hint: t('Open or in progress') },
+                { label: t('Closed in total'), value: stats.bugs.closed, hint: t('Fixed or closed') },
+                { label: t('Reported in period'), value: stats.bugs.reportedInRange },
+                { label: t('Closed in period'), value: stats.bugs.closedInRange },
               ]}
             />
             <ChartCard
-              title="Bugs over time"
-              description={`Reported and closed per ${BUCKET_WORD[stats.bucketSize]}`}
+              title={t('Bugs over time')}
+              description={t(BUGS_PER[stats.bucketSize])}
               active={hasActivity(stats, 'bugs')}
-              emptyText="No bugs were reported or closed in this period."
-              note={stats.bugs.closedUnknownDate > 0 ? `${stats.bugs.closedUnknownDate} closed ${stats.bugs.closedUnknownDate === 1 ? 'bug was' : 'bugs were'} closed before VOID recorded closing dates and ${stats.bugs.closedUnknownDate === 1 ? 'is' : 'are'} not in the chart.` : undefined}
+              emptyText={t('No bugs were reported or closed in this period.')}
+              note={stats.bugs.closedUnknownDate > 0 ? tn('{count} closed bug was closed before VOID recorded closing dates and is not in the chart.|{count} closed bugs were closed before VOID recorded closing dates and are not in the chart.', stats.bugs.closedUnknownDate) : undefined}
             >
               <BarChart
-                title="Bugs over time"
+                title={t('Bugs over time')}
                 buckets={stats.buckets}
                 series={[
-                  { key: 'bugsReported', label: 'Reported', color: 'bg-warning/70' },
-                  { key: 'bugsClosed', label: 'Closed', color: 'bg-success/80' },
+                  { key: 'bugsReported', label: t('Reported'), color: 'bg-warning/70' },
+                  { key: 'bugsClosed', label: t('Closed'), color: 'bg-success/80' },
                 ]}
               />
             </ChartCard>
@@ -113,21 +115,21 @@ export default function StatisticsPage() {
 
           <section aria-labelledby="stats-projects" className="space-y-3">
             <h2 id="stats-projects" className="text-sm font-semibold text-fg">
-              Projects
+              {t('Projects')}
             </h2>
             <Tiles
               items={[
-                { label: 'Active', value: stats.projects.active },
-                { label: 'Paused', value: stats.projects.paused },
-                { label: 'Archived', value: stats.projects.archived },
+                { label: t('Active'), value: stats.projects.active },
+                { label: t('Paused'), value: stats.projects.paused },
+                { label: t('Archived'), value: stats.projects.archived },
               ]}
             />
             <Card>
-              <CardHeader title="Progress by project" description="Share of done tasks; archived projects are not shown" />
+              <CardHeader title={t('Progress by project')} description={t('Share of done tasks; archived projects are not shown')} />
               {stats.projects.list.length === 0 ? (
-                <p className="px-5 py-6 text-[13px] text-muted">No active or paused projects.</p>
+                <p className="px-5 py-6 text-[13px] text-muted">{t('No active or paused projects.')}</p>
               ) : (
-                <ul className="divide-y divide-line" aria-label="Progress by project">
+                <ul className="divide-y divide-line" aria-label={t('Progress by project')}>
                   {stats.projects.list.map((project) => (
                     <li key={project.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1.5 px-5 py-3 sm:grid-cols-[minmax(0,14rem)_minmax(0,1fr)_auto]">
                       <span className="flex min-w-0 items-center gap-2">
@@ -138,7 +140,7 @@ export default function StatisticsPage() {
                       </span>
                       <span className="order-3 col-span-2 sm:order-none sm:col-span-1">
                         {project.progress === null ? (
-                          <span className="text-xs text-subtle">No tasks</span>
+                          <span className="text-xs text-subtle">{t('No tasks')}</span>
                         ) : (
                           <span
                             role="progressbar"
@@ -155,7 +157,7 @@ export default function StatisticsPage() {
                       <span className="text-right font-mono text-xs text-muted tabular-nums">
                         {project.progress === null ? '–' : `${project.progress}%`}
                         <span className="ml-2 text-subtle">
-                          {project.doneTasks}/{project.totalTasks} tasks · {project.openBugs} open {project.openBugs === 1 ? 'bug' : 'bugs'}
+                          {tn('{done}/{total} tasks · {count} open bug|{done}/{total} tasks · {count} open bugs', project.openBugs, { done: project.doneTasks, total: project.totalTasks })}
                         </span>
                       </span>
                     </li>

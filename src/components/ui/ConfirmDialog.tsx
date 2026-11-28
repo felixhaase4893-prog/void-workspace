@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 
 import { Button } from './Button';
 import { Dialog } from './Dialog';
+import { t } from '../../i18n/translate';
 
 interface ConfirmDialogProps {
   title: string;
@@ -29,7 +30,7 @@ export function ConfirmDialog({ title, description, confirmLabel, tone = 'danger
       footer={
         <>
           <Button variant="ghost" onClick={onClose} data-autofocus>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant={tone === 'danger' ? 'danger' : 'primary'} disabled={pending} onClick={onConfirm}>
             {confirmLabel}

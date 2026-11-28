@@ -12,6 +12,7 @@ import {
 } from './models';
 import { buildSearchIndex, parseQuery, search, type SearchIndex } from './search';
 import { createTagLookup } from './tags';
+import { localized, t } from '../i18n/translate';
 
 /**
  * Pure filter logic for the four overviews. Filters are a view on the data:
@@ -35,27 +36,27 @@ export const FILTER_FIELDS: { readonly [T in EntityType]: readonly FilterField[]
   bug: ['status', 'priority', 'due', 'project', 'tag'],
 };
 
-export const FILTER_FIELD_LABELS: Record<FilterField, string> = {
+export const FILTER_FIELD_LABELS = localized<FilterField>({
   status: 'Status',
   priority: 'Priority',
   due: 'Due date',
   project: 'Project',
   language: 'Language',
   tag: 'Tags',
-};
+});
 
 /**
  * Due date buckets, relative to today. Finished items (done tasks, fixed or
  * closed bugs) are in none of them: they are never "overdue".
  */
 export const DUE_FILTER_VALUES = ['overdue', 'today', 'upcoming', 'later', 'none'] as const;
-export const DUE_FILTER_LABELS: Record<(typeof DUE_FILTER_VALUES)[number], string> = {
+export const DUE_FILTER_LABELS = localized<(typeof DUE_FILTER_VALUES)[number]>({
   overdue: 'Overdue',
   today: 'Due today',
   upcoming: 'Next 7 days',
   later: 'Later',
   none: 'No due date',
-};
+});
 
 /** Filter value for items that belong to no project. Real ids are never empty. */
 export const NO_PROJECT = '';
@@ -198,7 +199,7 @@ export function getFilterOptions(
           .filter((project) => relevant(project.id))
           .map((project) => ({ value: project.id, label: project.name, count: counts.get(project.id) ?? 0 }))
           .sort(byLabel);
-        options.project = relevant(NO_PROJECT) ? [...projects, { value: NO_PROJECT, label: 'No project', count: counts.get(NO_PROJECT) ?? 0 }] : projects;
+        options.project = relevant(NO_PROJECT) ? [...projects, { value: NO_PROJECT, label: t('No project'), count: counts.get(NO_PROJECT) ?? 0 }] : projects;
         break;
       }
       case 'language':
@@ -227,7 +228,7 @@ function languageOptions(items: readonly Item[], counts: Map<string, number>, se
     spellings.set(key, forKey);
   }
   const label = (key: string): string => {
-    if (key === NO_LANGUAGE) return 'No language';
+    if (key === NO_LANGUAGE) return t('No language');
     const forKey = spellings.get(key);
     if (!forKey) return key;
     // Ties go to the spelling seen first (sort is stable), i.e. the most recently added snippet.
@@ -244,9 +245,9 @@ function languageOptions(items: readonly Item[], counts: Map<string, number>, se
 export function getFilterValueLabel(options: FilterOptions, field: FilterField, value: string): string {
   const found = options[field]?.find((option) => option.value === value);
   if (found) return found.label;
-  if (field === 'project') return value === NO_PROJECT ? 'No project' : 'Deleted project';
-  if (field === 'tag') return 'Deleted tag';
-  if (field === 'language') return value === NO_LANGUAGE ? 'No language' : value;
+  if (field === 'project') return value === NO_PROJECT ? t('No project') : t('Deleted project');
+  if (field === 'tag') return t('Deleted tag');
+  if (field === 'language') return value === NO_LANGUAGE ? t('No language') : value;
   return value;
 }
 

@@ -7,6 +7,7 @@ import { useWorkspace } from '../../state/workspaceContext';
 import { DeleteDialog } from './DeleteDialog';
 import { EntityDialogContext, type CreatePreset, type DeleteDialogOptions, type EntityDialogContextValue } from './entityDialogContext';
 import { BugForm, NoteForm, ProjectForm, SnippetForm, TaskForm, type EntityFormComponentProps } from './forms';
+import { type MessageKey, t } from '../../i18n/translate';
 
 type AnyEntityForm = ComponentType<EntityFormComponentProps<EntityOfType[EntityType]>>;
 
@@ -19,7 +20,7 @@ const FORMS: Record<EntityType, AnyEntityForm> = {
   bug: BugForm as AnyEntityForm,
 };
 
-const COPY: Record<EntityType, { create: string; edit: string; description: string }> = {
+const COPY: Record<EntityType, { create: MessageKey; edit: MessageKey; description: MessageKey }> = {
   project: { create: 'New project', edit: 'Edit project', description: 'A home for related tasks, notes and snippets.' },
   task: { create: 'New task', edit: 'Edit task', description: 'Something that needs to get done.' },
   note: { create: 'New note', edit: 'Edit note', description: 'Capture a technical thought or decision.' },
@@ -65,13 +66,13 @@ function FormDialog({ state, onClose }: { state: Exclude<DialogState, { mode: 'd
     // The item was deleted meanwhile, e.g. in another tab.
     if (!entity) return null;
     return (
-      <Dialog open onClose={onClose} title={copy.edit}>
+      <Dialog open onClose={onClose} title={t(copy.edit)}>
         <Form key={state.id} entity={entity} onDone={onClose} />
       </Dialog>
     );
   }
   return (
-    <Dialog open onClose={onClose} title={copy.create} description={copy.description}>
+    <Dialog open onClose={onClose} title={t(copy.create)} description={t(copy.description)}>
       <Form preset={state.preset} onDone={onClose} />
     </Dialog>
   );

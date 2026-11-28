@@ -1,5 +1,6 @@
 import { addDays, daysBetween, formatDueDate, isFinished, toDayKey } from './dueDates';
 import { isValidDueDate, type Bug, type Task, type Workspace } from './models';
+import { t, tn } from '../i18n/translate';
 
 /**
  * Pure reminder logic for desktop notifications. Nothing here sends anything
@@ -114,19 +115,24 @@ export interface NotificationMessage {
 export const MAX_SEPARATE_NOTIFICATIONS = 3;
 
 function describe(reminder: Reminder, today: string): NotificationMessage {
-  const noun = reminder.type === 'task' ? 'Task' : 'Bug';
+  const task = reminder.type === 'task';
   const due = reminder.dueDate;
+  const quoted = t('“{title}”', { title: reminder.title });
   switch (reminder.kind) {
     case 'overdue':
-      return { title: `${noun} overdue`, body: `“${reminder.title}” was due ${due ? formatDueDate(due, today) : 'earlier'}.` };
+      return {
+        title: task ? t('Task overdue') : t('Bug overdue'),
+        body: due ? t('“{title}” was due {date}.', { title: reminder.title, date: formatDueDate(due, today) }) : t('“{title}” was due earlier.', { title: reminder.title }),
+      };
     case 'today':
-      return { title: `${noun} due today`, body: `“${reminder.title}”` };
+      return { title: task ? t('Task due today') : t('Bug due today'), body: quoted };
     case 'upcoming': {
       const days = due ? daysBetween(today, due) : 0;
-      return { title: days === 1 ? `${noun} due tomorrow` : `${noun} due in ${days} days`, body: `“${reminder.title}”${due ? ` · ${formatDueDate(due, today)}` : ''}` };
+      const title = days === 1 ? (task ? t('Task due tomorrow') : t('Bug due tomorrow')) : t(task ? 'Task due in {count} days' : 'Bug due in {count} days', { count: days });
+      return { title, body: `${quoted}${due ? ` · ${formatDueDate(due, today)}` : ''}` };
     }
     case 'critical':
-      return { title: 'Critical bug open', body: `“${reminder.title}” is still unresolved.` };
+      return { title: t('Critical bug open'), body: t('“{title}” is still unresolved.', { title: reminder.title }) };
   }
 }
 
@@ -136,13 +142,14 @@ export function toNotifications(reminders: readonly Reminder[], now: Date): Noti
   if (reminders.length <= MAX_SEPARATE_NOTIFICATIONS) return reminders.map((reminder) => describe(reminder, today));
   const count = (kind: ReminderKind) => reminders.filter((reminder) => reminder.kind === kind).length;
   const parts = [
-    count('overdue') > 0 && `${count('overdue')} overdue`,
-    count('today') > 0 && `${count('today')} due today`,
-    count('upcoming') > 0 && `${count('upcoming')} coming up`,
-    count('critical') > 0 && `${count('critical')} critical ${count('critical') === 1 ? 'bug' : 'bugs'}`,
+    count('overdue') > 0 && t('{count} overdue', { count: count('overdue') }),
+    count('today') > 0 && t('{count} due today', { count: count('today') }),
+    count('upcoming') > 0 && t('{count} coming up', { count: count('upcoming') }),
+    count('critical') > 0 && tn('{count} critical bug|{count} critical bugs', count('critical')),
   ].filter(Boolean);
-  const names = reminders.slice(0, 3).map((reminder) => `“${reminder.title}”`).join(', ');
-  return [{ title: `${reminders.length} reminders in VOID`, body: `${parts.join(', ')}: ${names}${reminders.length > 3 ? ' and more' : ''}.` }];
+  const names = reminders.slice(0, 3).map((reminder) => t('“{title}”', { title: reminder.title })).join(', ');
+  const body = reminders.length > 3 ? t('{parts}: {names} and more.', { parts: parts.join(', '), names }) : t('{parts}: {names}.', { parts: parts.join(', '), names });
+  return [{ title: t('{count} reminders in VOID', { count: reminders.length }), body }];
 }
 
 /* ---------- The log of reminders that were already sent ---------- */

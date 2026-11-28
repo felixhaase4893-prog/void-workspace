@@ -1,7 +1,7 @@
 {
   "name": "void",
   "private": true,
-  "version": "4.4.0",
+  "version": "4.5.0",
   "description": "VOID – a free, local-first workspace for developers.",
   "type": "module",
   "license": "UNLICENSED",

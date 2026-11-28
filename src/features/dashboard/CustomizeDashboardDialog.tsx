@@ -14,6 +14,7 @@ import {
 } from '../../domain/dashboardLayout';
 import { cn } from '../../lib/cn';
 import { useDashboardLayout } from './useDashboardLayout';
+import { t } from '../../i18n/translate';
 
 /** Show, hide and reorder the dashboard cards. Every change applies and is saved right away. */
 export function CustomizeDashboardDialog({ onClose }: { onClose: () => void }) {
@@ -21,15 +22,15 @@ export function CustomizeDashboardDialog({ onClose }: { onClose: () => void }) {
   const { showToast } = useToast();
 
   const apply = (update: (current: DashboardLayout) => DashboardLayout) => {
-    if (!setLayout(update)) showToast('Changed for now, but the layout could not be saved on this device.', 'warning');
+    if (!setLayout(update)) showToast(t('Changed for now, but the layout could not be saved on this device.'), 'warning');
   };
 
   return (
     <Dialog
       open
       onClose={onClose}
-      title="Customize dashboard"
-      description="Choose which cards to show and in which order. Saved on this device."
+      title={t('Customize dashboard')}
+      description={t('Choose which cards to show and in which order. Saved on this device.')}
       footer={
         <>
           <Button
@@ -40,15 +41,15 @@ export function CustomizeDashboardDialog({ onClose }: { onClose: () => void }) {
             disabled={isDefaultDashboardLayout(layout)}
             onClick={() => apply(() => DEFAULT_DASHBOARD_LAYOUT)}
           >
-            Restore default
+            {t('Restore default')}
           </Button>
           <Button variant="primary" size="sm" onClick={onClose}>
-            Done
+            {t('Done')}
           </Button>
         </>
       }
     >
-      <ol aria-label="Dashboard cards" className="divide-y divide-line rounded-lg border border-line">
+      <ol aria-label={t('Dashboard cards')} className="divide-y divide-line rounded-lg border border-line">
         {layout.order.map((card, index) => {
           const visible = !layout.hidden.includes(card);
           const label = DASHBOARD_CARD_LABELS[card];
@@ -68,7 +69,7 @@ export function CustomizeDashboardDialog({ onClose }: { onClose: () => void }) {
               </label>
               <div className="flex shrink-0 items-center">
                 <IconButton
-                  label={`Move ${label} up`}
+                  label={t('Move {label} up', { label })}
                   className="size-8 [&_svg]:size-4"
                   disabled={index === 0}
                   onClick={() => apply((current) => moveDashboardCard(current, card, -1))}
@@ -76,7 +77,7 @@ export function CustomizeDashboardDialog({ onClose }: { onClose: () => void }) {
                   <ArrowUp />
                 </IconButton>
                 <IconButton
-                  label={`Move ${label} down`}
+                  label={t('Move {label} down', { label })}
                   className="size-8 [&_svg]:size-4"
                   disabled={index === layout.order.length - 1}
                   onClick={() => apply((current) => moveDashboardCard(current, card, 1))}

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useId, type ReactNode } from 'react';
 
 import { Card } from '../../components/ui/Card';
 
@@ -9,7 +9,7 @@ interface SettingsSectionProps {
 }
 
 export function SettingsSection({ title, description, children }: SettingsSectionProps) {
-  const id = `settings-${title.toLowerCase().replace(/\W+/g, '-')}`;
+  const id = useId();
   return (
     <section aria-labelledby={id} className="grid gap-4 md:grid-cols-[14rem_1fr] md:gap-8">
       <div>

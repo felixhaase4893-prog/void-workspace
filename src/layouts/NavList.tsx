@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 
 import { NAVIGATION } from '../app/navigation';
 import { cn } from '../lib/cn';
+import { t } from '../i18n/translate';
 
 interface NavListProps {
   /** Shows an icon-only rail below the `lg` breakpoint (tablet sidebar). */
@@ -18,7 +19,7 @@ export function NavList({ responsive = false, onNavigate }: NavListProps) {
             to={to}
             end={to === '/'}
             onClick={onNavigate}
-            title={shortcut === undefined ? label : `${label} (Ctrl ${shortcut})`}
+            title={shortcut === undefined ? label : t('{label} (Ctrl {shortcut})', { label, shortcut })}
             aria-keyshortcuts={shortcut === undefined ? undefined : `Control+${shortcut}`}
             className={({ isActive }) =>
               cn(

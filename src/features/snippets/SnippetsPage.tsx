@@ -11,6 +11,7 @@ import { useEntityDialogs } from '../create/entityDialogContext';
 import { FilterBar, NoMatches } from '../filters/FilterBar';
 import { useListFilters } from '../filters/listFiltersContext';
 import { SnippetCard } from './SnippetCard';
+import { t } from '../../i18n/translate';
 
 export function SnippetsPage() {
   const workspace = useWorkspace();
@@ -20,16 +21,16 @@ export function SnippetsPage() {
 
   const newButton = (
     <Button variant="primary" icon={<Plus />} onClick={() => openCreateDialog('snippet')}>
-      New snippet
+      {t('New snippet')}
     </Button>
   );
 
   return (
     <>
-      <PageHeader title="Snippet Vault" description="Reusable code you reach for again and again." actions={snippets.length > 0 ? newButton : undefined} />
+      <PageHeader title={t('Snippet Vault')} description={t('Reusable code you reach for again and again.')} actions={snippets.length > 0 ? newButton : undefined} />
       {snippets.length === 0 ? (
         <Card>
-          <EmptyState icon={Code2} title="Your vault is empty" description="Save hooks, Luau modules, shaders or shell one-liners so you never rewrite them." action={newButton} quickAddHint />
+          <EmptyState icon={Code2} title={t('Your vault is empty')} description={t('Save hooks, Luau modules, shaders or shell one-liners so you never rewrite them.')} action={newButton} quickAddHint />
         </Card>
       ) : (
         <>

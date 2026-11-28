@@ -1,5 +1,6 @@
 import { err, ok, type Result } from '../lib/result';
 import type { StorageError } from './errors';
+import { t } from '../i18n/translate';
 
 export type RawRecord = Record<string, unknown>;
 
@@ -78,17 +79,17 @@ export function migrate(
   migrations: MigrationMap,
 ): Result<MigrationOutcome, StorageError> {
   if (!isRecord(raw)) {
-    return err({ kind: 'invalid', message: 'Stored data is not an object.', issues: [] });
+    return err({ kind: 'invalid', message: t('Stored data is not an object.'), issues: [] });
   }
   const version = raw.schemaVersion;
   if (typeof version !== 'number' || !Number.isInteger(version) || version < 0) {
-    return err({ kind: 'invalid', message: 'Stored data has no valid schema version.', issues: [] });
+    return err({ kind: 'invalid', message: t('Stored data has no valid schema version.'), issues: [] });
   }
   if (version > targetVersion) {
     return err({
       kind: 'unsupported-version',
       version,
-      message: `Stored data uses format version ${version}, but this version of VOID only understands up to ${targetVersion}. Please update VOID.`,
+      message: t('Stored data uses format version {version}, but this version of VOID only understands up to {target}. Please update VOID.', { version, target: targetVersion }),
     });
   }
 

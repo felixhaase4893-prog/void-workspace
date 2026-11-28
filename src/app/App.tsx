@@ -29,6 +29,8 @@ import { WorkspaceProvider } from '../state/WorkspaceProvider';
 import { DocumentTitle } from './DocumentTitle';
 import { NotFoundPage } from './NotFoundPage';
 import { WorkspaceGate } from './WorkspaceGate';
+import { I18nBoundary, RemountOnLanguageChange } from '../i18n/I18nBoundary';
+import { t } from '../i18n/translate';
 
 // The Code Tester and the statistics page load their code (editor, parsers, charts) only when opened.
 const loadCodeTester = () => import('../features/codetester/CodeTesterPage');
@@ -62,7 +64,7 @@ function PageLoader({ children }: { children: ReactNode }) {
     <Suspense
       fallback={
         <div className="flex items-center gap-3 py-16 text-[13px] text-muted" role="status">
-          <Spinner /> Loading…
+          <Spinner /> {t('Loading…')}
         </div>
       }
     >
@@ -84,6 +86,7 @@ export function App({ repository, storageWarning = null, preferences }: AppProps
   return (
     <WorkspaceProvider repository={repository} storageWarning={storageWarning}>
       <PreferencesProvider repository={preferences ?? fallbackPreferences}>
+        <I18nBoundary>
         <WorkspaceGate>
           <ToastProvider>
             <EntityDialogProvider>
@@ -93,6 +96,7 @@ export function App({ repository, storageWarning = null, preferences }: AppProps
                     <DevToolsProvider>
                       <CodeTesterSessionProvider>
                       <DiscordPresenceProvider>
+                      <RemountOnLanguageChange>
                       <DocumentTitle />
                       <PrefetchPages />
                       <ReminderScheduler />
@@ -112,6 +116,7 @@ export function App({ repository, storageWarning = null, preferences }: AppProps
                           <Route path="*" element={<NotFoundPage />} />
                         </Route>
                       </Routes>
+                      </RemountOnLanguageChange>
                       </DiscordPresenceProvider>
                       </CodeTesterSessionProvider>
                     </DevToolsProvider>
@@ -121,6 +126,7 @@ export function App({ repository, storageWarning = null, preferences }: AppProps
             </EntityDialogProvider>
           </ToastProvider>
         </WorkspaceGate>
+        </I18nBoundary>
       </PreferencesProvider>
     </WorkspaceProvider>
   );

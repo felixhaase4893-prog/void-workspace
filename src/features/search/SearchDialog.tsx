@@ -13,14 +13,15 @@ import { useWorkspace } from '../../state/workspaceContext';
 import { TagList } from '../tags/TagList';
 import { HighlightedText } from './HighlightedText';
 import { useSearchHistory } from './useSearchHistory';
+import { localized, t } from '../../i18n/translate';
 
-const GROUP_LABELS: Record<EntityType, string> = {
+const GROUP_LABELS = localized<EntityType>({
   project: 'Projects',
   task: 'Tasks',
   note: 'Notes',
   snippet: 'Snippets',
   bug: 'Bugs',
-};
+});
 
 interface SearchDialogProps {
   onClose: () => void;
@@ -96,7 +97,7 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
     } else if (event.key === 'Enter' && entry !== undefined) {
       event.preventDefault();
       applyHistory(entry);
-    } else if (event.key === 'Delete' && event.shiftKey && entry !== undefined) {
+    } else if (event.key === t('Delete') && event.shiftKey && entry !== undefined) {
       // Shift+Delete removes the highlighted entry, like in browsers' address bars.
       event.preventDefault();
       searchHistory.remove(entry);
@@ -127,13 +128,13 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
   const hasInput = query !== '';
   const hasTerms = (results?.terms.length ?? 0) > 0;
   let statusText = '';
-  if (results && hasTerms) statusText = results.total === 0 ? 'No results' : `${results.total} ${results.total === 1 ? 'result' : 'results'}`;
+  if (results && hasTerms) statusText = results.total === 0 ? t('No results') : `${results.total} ${results.total === 1 ? 'result' : 'results'}`;
 
   return (
-    <Dialog open onClose={onClose} title="Search" placement="top">
+    <Dialog open onClose={onClose} title={t('Search')} placement="top">
       <div className="sticky top-0 z-10 -mx-5 border-b border-line bg-surface px-5 pb-3">
         <label htmlFor={inputId} className="sr-only">
-          Search projects, tasks, bugs, notes and snippets
+          {t('Search projects, tasks, bugs, notes and snippets')}
         </label>
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-subtle" aria-hidden="true" />
@@ -151,7 +152,7 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
             spellCheck={false}
             enterKeyHint="go"
             maxLength={MAX_QUERY_LENGTH}
-            placeholder="Search projects, tasks, bugs, notes, snippets…"
+            placeholder={t('Search projects, tasks, bugs, notes, snippets…')}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -169,20 +170,20 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
 
       <div className="pt-3">
         {!indexState.ok ? (
-          <Alert tone="danger" title="Search is unavailable">
-            Your data could not be prepared for searching. Reload VOID and try again.
+          <Alert tone="danger" title={t('Search is unavailable')}>
+            {t('Your data could not be prepared for searching. Reload VOID and try again.')}
           </Alert>
         ) : showHistory ? (
           <section aria-labelledby={`${historyListId}-label`}>
             <div className="mb-1 flex items-center justify-between px-2">
               <h3 id={`${historyListId}-label`} className="font-mono text-[10px] tracking-[0.14em] text-subtle uppercase">
-                Recent searches
+                {t('Recent searches')}
               </h3>
               <button type="button" onClick={searchHistory.clear} className="rounded px-1 text-xs text-muted hover:text-fg">
-                Clear history
+                {t('Clear history')}
               </button>
             </div>
-            <ul id={historyListId} role="listbox" aria-label="Recent searches">
+            <ul id={historyListId} role="listbox" aria-label={t('Recent searches')}>
               {searchHistory.history.map((entry, index) => {
                 const isActive = index === historyActive;
                 return (
@@ -204,8 +205,8 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
                     <span className="min-w-0 flex-1 truncate text-[13px] text-fg">{entry}</span>
                     <button
                       type="button"
-                      aria-label={`Remove “${entry}” from history`}
-                      title="Remove from history"
+                      aria-label={t('Remove “{entry}” from history', { entry })}
+                      title={t('Remove from history')}
                       onClick={(event) => {
                         event.stopPropagation();
                         searchHistory.remove(entry);
@@ -222,15 +223,15 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
             </ul>
           </section>
         ) : !hasInput ? (
-          <SearchHint icon={Search} title="Search everything in VOID" text="Find projects, tasks, bugs, notes and snippets by name, content, tag, language, status and more." />
+          <SearchHint icon={Search} title={t('Search everything in VOID')} text={t('Find projects, tasks, bugs, notes and snippets by name, content, tag, language, status and more.')} />
         ) : !hasTerms ? (
-          <SearchHint icon={Search} title="Type a search term" text="Spaces alone don’t count. Enter at least one letter, number or symbol." />
+          <SearchHint icon={Search} title={t('Type a search term')} text={t('Spaces alone don’t count. Enter at least one letter, number or symbol.')} />
         ) : results && results.total === 0 ? (
-          <SearchHint icon={SearchX} title="Nothing found" text={`Nothing matches “${query.trim()}”. Check the spelling or try fewer words.`} />
+          <SearchHint icon={SearchX} title={t('Nothing found')} text={t('Nothing matches “{query}”. Check the spelling or try fewer words.', { query: query.trim() })} />
         ) : null}
 
         {/* The listbox stays in the DOM so the combobox always points at it. */}
-        <ul id={listId} role="listbox" aria-label="Search results" className={cn('space-y-4', flat.length === 0 && 'hidden')}>
+        <ul id={listId} role="listbox" aria-label={t('Search results')} className={cn('space-y-4', flat.length === 0 && 'hidden')}>
           {results?.groups.map((group, groupIndex) => {
             const headingId = `${baseId}-group-${group.type}`;
             const Icon = ENTITY_ICONS[group.type];
@@ -270,7 +271,7 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
                           <span className="block truncate text-xs text-subtle">{meta}</span>
                           <TagList tagIds={result.tagIds} max={3} terms={results.terms} className="mt-1" />
                           {result.context && (
-                            <span className={cn('mt-0.5 block truncate text-xs text-muted', result.contextLabel === 'Code' && 'font-mono [font-variant-ligatures:none]')}>
+                            <span className={cn('mt-0.5 block truncate text-xs text-muted', result.contextLabel === t('Code') && 'font-mono [font-variant-ligatures:none]')}>
                               <span className="text-subtle">{result.contextLabel}: </span>
                               <HighlightedText text={result.context} terms={results.terms} />
                             </span>
@@ -286,10 +287,10 @@ export function SearchDialog({ onClose, onSelect }: SearchDialogProps) {
         </ul>
 
         <p className="mt-4 hidden items-center gap-3 border-t border-line pt-3 text-[11px] text-subtle sm:flex" aria-hidden="true">
-          <span><Kbd>↑</Kbd> <Kbd>↓</Kbd> to move</span>
-          <span><Kbd>Enter</Kbd> to open</span>
-          {showHistory && <span><Kbd>Shift</Kbd> <Kbd>Del</Kbd> to remove</span>}
-          <span><Kbd>Esc</Kbd> to close</span>
+          <span><Kbd>↑</Kbd> <Kbd>↓</Kbd> {t('to move')}</span>
+          <span><Kbd>Enter</Kbd> {t('to open')}</span>
+          {showHistory && <span><Kbd>Shift</Kbd> <Kbd>Del</Kbd> {t('to remove')}</span>}
+          <span><Kbd>Esc</Kbd> {t('to close')}</span>
         </p>
       </div>
     </Dialog>

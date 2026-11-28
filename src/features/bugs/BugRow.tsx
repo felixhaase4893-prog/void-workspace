@@ -13,6 +13,7 @@ import { RowSelectCheckbox } from '../selection/SelectionBar';
 import { BUG_STATUS_TONES, PRIORITY_TONES } from '../shared/tones';
 import { TagList } from '../tags/TagList';
 import { DueBadge } from '../tasks/DueBadge';
+import { t } from '../../i18n/translate';
 
 const STATUS_SELECT_TONES: Record<BugStatus, string> = {
   open: 'border-accent-500/30 bg-accent-500/10 text-accent-300',
@@ -34,7 +35,7 @@ export function BugRow({ bug, projectName = null, selection }: BugRowProps) {
   const { setBugStatus } = useWorkspaceActions();
   const today = useToday();
   const resolved = bug.status === 'fixed' || bug.status === 'closed';
-  const meta = [projectName, `Reported ${formatRelativeTime(bug.createdAt)}`, bug.description].filter(Boolean).join(' · ');
+  const meta = [projectName, t('Reported {time}', { time: formatRelativeTime(bug.createdAt) }), bug.description].filter(Boolean).join(' · ');
 
   return (
     <li
@@ -65,7 +66,7 @@ export function BugRow({ bug, projectName = null, selection }: BugRowProps) {
           <BugStatusBadge status={bug.status} />
         ) : (
           <label className="relative">
-            <span className="sr-only">Status of {bug.title}</span>
+            <span className="sr-only">{t('Status of {title}', { title: bug.title })}</span>
             <select
               value={bug.status}
               onChange={(event) => void setBugStatus(bug.id, event.target.value as BugStatus)}

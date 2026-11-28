@@ -10,6 +10,7 @@ import { useEntityDialogs } from '../create/entityDialogContext';
 import { FilterBar, NoMatches } from '../filters/FilterBar';
 import { useListFilters } from '../filters/listFiltersContext';
 import { NoteCard } from './NoteCard';
+import { t } from '../../i18n/translate';
 
 export function NotesPage() {
   const workspace = useWorkspace();
@@ -19,16 +20,16 @@ export function NotesPage() {
 
   const newButton = (
     <Button variant="primary" icon={<Plus />} onClick={() => openCreateDialog('note')}>
-      New note
+      {t('New note')}
     </Button>
   );
 
   return (
     <>
-      <PageHeader title="Notes" description="Technical notes, decisions and things you will forget otherwise." actions={workspace.notes.length > 0 ? newButton : undefined} />
+      <PageHeader title={t('Notes')} description={t('Technical notes, decisions and things you will forget otherwise.')} actions={workspace.notes.length > 0 ? newButton : undefined} />
       {workspace.notes.length === 0 ? (
         <Card>
-          <EmptyState icon={StickyNote} title="No notes yet" description="Write down architecture ideas, API quirks or the reason behind a decision." action={newButton} quickAddHint />
+          <EmptyState icon={StickyNote} title={t('No notes yet')} description={t('Write down architecture ideas, API quirks or the reason behind a decision.')} action={newButton} quickAddHint />
         </Card>
       ) : (
         <>

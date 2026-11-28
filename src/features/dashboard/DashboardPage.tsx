@@ -21,8 +21,8 @@ import { StatisticsCard } from './StatisticsCard';
 import { StatTiles } from './StatTiles';
 import { useDashboardLayout } from './useDashboardLayout';
 import { WelcomePanel } from './WelcomePanel';
+import { dateTimeFormat, t } from '../../i18n/translate';
 
-const dateFormatter = new Intl.DateTimeFormat('en', { weekday: 'long', day: 'numeric', month: 'long' });
 
 function renderCard(card: DashboardCardId, workspace: Workspace, today: string): ReactNode {
   switch (card) {
@@ -53,16 +53,16 @@ export function DashboardPage() {
   const cards = visibleDashboardCards(layout);
   const customizeButton = (
     <Button size="sm" icon={<SlidersHorizontal />} onClick={() => setCustomizing(true)}>
-      Customize
+      {t('Customize')}
     </Button>
   );
 
   return (
     <>
       <PageHeader
-        eyebrow={dateFormatter.format(now)}
+        eyebrow={dateTimeFormat({ weekday: 'long', day: 'numeric', month: 'long' }).format(now)}
         title={getGreeting(now)}
-        description={empty ? 'Welcome to VOID, the organised side of your dev life.' : 'Here is where your work stands.'}
+        description={empty ? t('Welcome to VOID, the organised side of your dev life.') : t('Here is where your work stands.')}
         actions={empty ? undefined : customizeButton}
       />
       {empty ? (
@@ -71,8 +71,8 @@ export function DashboardPage() {
         <Card>
           <EmptyState
             icon={LayoutDashboard}
-            title="All dashboard cards are hidden"
-            description="Pick the cards you want to see again, or restore the default layout."
+            title={t('All dashboard cards are hidden')}
+            description={t('Pick the cards you want to see again, or restore the default layout.')}
             action={customizeButton}
           />
         </Card>

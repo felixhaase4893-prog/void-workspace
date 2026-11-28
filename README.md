@@ -31,6 +31,7 @@ VOID sits next to your IDE and GitHub, not in place of them. It is the place for
 - **Backup**: export everything as JSON and import it again (merge or replace, with preview).
 - **Discord Rich Presence** (optional): shows a generic status like "Working on a project". Project names or code are never sent.
 - **PC Optimizer** (desktop app): a read-only quick scan or deep scan of your PC. It shows which programs use the most CPU, GPU, RAM and network, lists performance hogs with step-by-step fixes, and opens the right folder or Windows settings page in one click. In this version every action is only simulated – nothing on your PC is changed.
+- **4 languages**: English, Español, 简体中文 and Deutsch. VOID picks your system language on first start; switch any time in **Settings → Language**. Your own content is never translated.
 - Keyboard-first: `Ctrl+1` to `Ctrl+9` jump between pages.
 
 ## Download

@@ -1,3 +1,4 @@
+import { localized } from '../i18n/translate';
 /**
  * Which dashboard cards are shown and in which order. Kept deliberately small:
  * a fixed set of cards that can be hidden and moved up or down, nothing else.
@@ -8,23 +9,23 @@ export const DASHBOARD_CARDS = ['stats', 'statistics', 'quickActions', 'dueSoon'
 
 export type DashboardCardId = (typeof DASHBOARD_CARDS)[number];
 
-export const DASHBOARD_CARD_LABELS: Record<DashboardCardId, string> = {
+export const DASHBOARD_CARD_LABELS = localized<DashboardCardId>({
   stats: 'Summary',
   statistics: 'Statistics',
   quickActions: 'Quick actions',
   dueSoon: 'Due soon',
   recent: 'Recently edited',
   projects: 'Projects',
-};
+});
 
-export const DASHBOARD_CARD_HINTS: Record<DashboardCardId, string> = {
+export const DASHBOARD_CARD_HINTS = localized<DashboardCardId>({
   stats: 'Counts of projects, tasks, bugs, notes and snippets',
   statistics: 'Completed and open tasks, closed bugs and active projects',
   quickActions: 'Buttons to create something new',
   dueSoon: 'Overdue tasks and tasks due this week',
   recent: 'The items you edited last',
   projects: 'Your most recently updated projects',
-};
+});
 
 /** Cards that span the full width. The others are laid out side by side on wide windows. */
 export const WIDE_DASHBOARD_CARDS: ReadonlySet<DashboardCardId> = new Set<DashboardCardId>(['stats', 'statistics', 'quickActions']);

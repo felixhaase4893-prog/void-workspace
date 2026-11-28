@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { t, type MessageKey } from '../i18n/translate';
 
 /**
  * Central data models for VOID.
@@ -49,7 +50,7 @@ export function isValidDueDate(value: unknown): value is string {
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day && year >= 1970 && year <= 9999;
 }
 
-export const dueDateSchema = z.string().refine(isValidDueDate, 'Enter a valid date.');
+export const dueDateSchema = z.string().refine(isValidDueDate, { error: () => t('Enter a valid date.') });
 
 /** Optional and forgiving when loading: a missing or unreadable due date simply means "no due date". */
 const storedDueDate = dueDateSchema.nullable().catch(null);
@@ -110,7 +111,7 @@ const technologySchema = z.string().trim().min(1).max(40);
 
 export const projectLinkSchema = z.object({
   label: z.string().max(60),
-  url: z.url({ protocol: /^https?$/, error: 'Links must be full http(s) URLs, e.g. https://github.com/you/repo.' }),
+  url: z.url({ protocol: /^https?$/, error: () => t('Links must be full http(s) URLs, e.g. https://github.com/you/repo.') }),
 });
 
 export const projectSchema = z.object({
@@ -228,15 +229,16 @@ export function createEmptyWorkspace(): Workspace {
 
 /* ---------- Inputs for creating entities (used by forms) ---------- */
 
-const requiredText = (label: string, max: number) =>
+// Messages are built when a form is validated, so they use the language active then.
+const requiredText = (label: MessageKey, max: number) =>
   z
     .string()
     .trim()
-    .min(1, `${label} is required.`)
-    .max(max, `${label} must be at most ${max} characters.`);
+    .min(1, { error: () => t('{label} is required.', { label: t(label) }) })
+    .max(max, { error: () => t('{label} must be at most {max} characters.', { label: t(label), max }) });
 
-const optionalText = (label: string, max: number) =>
-  z.string().trim().max(max, `${label} must be at most ${max} characters.`);
+const optionalText = (label: MessageKey, max: number) =>
+  z.string().trim().max(max, { error: () => t('{label} must be at most {max} characters.', { label: t(label), max }) });
 
 /** A date input gives "" for "no date"; anything else must be a real calendar day. */
 const dueDateInput = z
@@ -262,8 +264,8 @@ const technologyList = z
   })
   .pipe(
     z
-      .array(technologySchema.max(40, 'Each technology must be at most 40 characters.'))
-      .max(MAX_TECHNOLOGIES, `Add at most ${MAX_TECHNOLOGIES} technologies.`),
+      .array(technologySchema.max(40, { error: () => t('Each technology must be at most 40 characters.') }))
+      .max(MAX_TECHNOLOGIES, { error: () => t('Add at most {max} technologies.', { max: MAX_TECHNOLOGIES }) }),
   );
 
 /**
@@ -291,8 +293,8 @@ const linkList = z
   .transform(parseLinkLines)
   .pipe(
     z
-      .array(projectLinkSchema.extend({ label: z.string().max(60, 'Link labels must be at most 60 characters.') }))
-      .max(MAX_LINKS, `Add at most ${MAX_LINKS} links.`),
+      .array(projectLinkSchema.extend({ label: z.string().max(60, { error: () => t('Link labels must be at most 60 characters.') }) }))
+      .max(MAX_LINKS, { error: () => t('Add at most {max} links.', { max: MAX_LINKS }) }),
   );
 
 /**
@@ -308,15 +310,15 @@ export const tagSelectionSchema = z.union([
       .pipe(
         z
           .string()
-          .min(1, 'Tag names cannot be empty.')
-          .max(MAX_TAG_NAME_LENGTH, `Tag names must be at most ${MAX_TAG_NAME_LENGTH} characters.`),
+          .min(1, { error: () => t('Tag names cannot be empty.') })
+          .max(MAX_TAG_NAME_LENGTH, { error: () => t('Tag names must be at most {max} characters.', { max: MAX_TAG_NAME_LENGTH }) }),
       ),
   }),
 ]);
 
 const tagSelectionList = z
   .array(tagSelectionSchema)
-  .max(MAX_TAGS_PER_ITEM, `Add at most ${MAX_TAGS_PER_ITEM} tags.`)
+  .max(MAX_TAGS_PER_ITEM, { error: () => t('Add at most {max} tags.', { max: MAX_TAGS_PER_ITEM }) })
   .default([]);
 
 export type TagSelection = z.infer<typeof tagSelectionSchema>;
@@ -361,7 +363,7 @@ export const noteInputSchema = z.object({
 export const snippetInputSchema = z.object({
   title: requiredText('Title', 160),
   language: requiredText('Language', 40),
-  code: z.string().min(1, 'Code is required.').max(50_000, 'Code must be at most 50000 characters.'),
+  code: z.string().min(1, { error: () => t('Code is required.') }).max(50_000, { error: () => t('Code must be at most 50000 characters.') }),
   description: optionalText('Description', 500),
   projectId: projectReference.default(null),
   tags: tagSelectionList,

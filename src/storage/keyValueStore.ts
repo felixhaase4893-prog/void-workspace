@@ -1,5 +1,6 @@
 import { err, ok, type Result } from '../lib/result';
 import type { StorageError } from './errors';
+import { t } from '../i18n/translate';
 
 /** The minimal synchronous key-value API VOID needs. `localStorage` satisfies it. */
 export interface KeyValueStore {
@@ -43,7 +44,7 @@ export function getBrowserStore(): Result<KeyValueStore, StorageError> {
   } catch (error) {
     return err({
       kind: 'unavailable',
-      message: `Browser storage is not available (${error instanceof Error ? error.message : String(error)}).`,
+      message: t('Browser storage is not available ({reason}).', { reason: error instanceof Error ? error.message : String(error) }),
     });
   }
 }

@@ -4,6 +4,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { Textarea } from '../../components/ui/Field';
 import { cn } from '../../lib/cn';
 import { MarkdownView } from './MarkdownView';
+import { t } from '../../i18n/translate';
 
 type Mode = 'write' | 'preview';
 
@@ -40,15 +41,16 @@ export function prefixLines(text: string, start: number, end: number, prefix: (i
 
 type Build = (text: string, start: number, end: number) => Edit;
 
-const TOOLS: Array<{ label: string; icon: ReactNode; build: Build }> = [
-  { label: 'Heading', icon: <Heading />, build: (t, s, e) => prefixLines(t, s, e, () => '## ') },
-  { label: 'Bold', icon: <Bold />, build: (t, s, e) => wrapSelection(t, s, e, '**', '**', 'bold text') },
-  { label: 'Italic', icon: <Italic />, build: (t, s, e) => wrapSelection(t, s, e, '*', '*', 'italic text') },
-  { label: 'Bulleted list', icon: <List />, build: (t, s, e) => prefixLines(t, s, e, () => '- ') },
-  { label: 'Numbered list', icon: <ListOrdered />, build: (t, s, e) => prefixLines(t, s, e, (i) => `${i + 1}. `) },
-  { label: 'Link', icon: <Link />, build: (t, s, e) => wrapSelection(t, s, e, '[', '](https://)', 'link text') },
-  { label: 'Inline code', icon: <Code />, build: (t, s, e) => wrapSelection(t, s, e, '`', '`', 'code') },
-  { label: 'Code block', icon: <SquareCode />, build: (t, s, e) => wrapSelection(t, s, e, '```\n', '\n```', 'code') },
+/** Built on render, so the labels and placeholder texts follow the active language. */
+const tools = (): Array<{ label: string; icon: ReactNode; build: Build }> => [
+  { label: t('Heading'), icon: <Heading />, build: (text, s, e) => prefixLines(text, s, e, () => '## ') },
+  { label: t('Bold'), icon: <Bold />, build: (text, s, e) => wrapSelection(text, s, e, '**', '**', t('bold text')) },
+  { label: t('Italic'), icon: <Italic />, build: (text, s, e) => wrapSelection(text, s, e, '*', '*', t('italic text')) },
+  { label: t('Bulleted list'), icon: <List />, build: (text, s, e) => prefixLines(text, s, e, () => '- ') },
+  { label: t('Numbered list'), icon: <ListOrdered />, build: (text, s, e) => prefixLines(text, s, e, (i) => `${i + 1}. `) },
+  { label: t('Link'), icon: <Link />, build: (text, s, e) => wrapSelection(text, s, e, '[', '](https://)', t('link text')) },
+  { label: t('Inline code'), icon: <Code />, build: (text, s, e) => wrapSelection(text, s, e, '`', '`', 'code') },
+  { label: t('Code block'), icon: <SquareCode />, build: (text, s, e) => wrapSelection(text, s, e, '```\n', '\n```', 'code') },
 ];
 
 /** Note content editor: plain text with Markdown, a small formatting toolbar and a preview tab. */
@@ -77,17 +79,17 @@ export function MarkdownEditor({ field, value, onChange }: MarkdownEditorProps) 
   return (
     <div className="min-w-0 rounded-lg border border-line bg-canvas focus-within:border-accent-400 focus-within:ring-2 focus-within:ring-accent-500/25">
       <div className="flex flex-wrap items-center justify-between gap-1 border-b border-line px-1.5 py-1">
-        <div role="tablist" aria-label="Note editor mode" className="flex items-center gap-0.5">
+        <div role="tablist" aria-label={t('Note editor mode')} className="flex items-center gap-0.5">
           <button type="button" role="tab" aria-selected={mode === 'write'} className={tabClass(mode === 'write')} onClick={() => setMode('write')}>
-            <Pencil aria-hidden="true" /> Write
+            <Pencil aria-hidden="true" /> {t('Write')}
           </button>
           <button type="button" role="tab" aria-selected={mode === 'preview'} className={tabClass(mode === 'preview')} onClick={() => setMode('preview')}>
-            <Eye aria-hidden="true" /> Preview
+            <Eye aria-hidden="true" /> {t('Preview')}
           </button>
         </div>
         {mode === 'write' && (
-          <div role="toolbar" aria-label="Formatting" className="flex flex-wrap items-center">
-            {TOOLS.map((tool) => (
+          <div role="toolbar" aria-label={t('Formatting')} className="flex flex-wrap items-center">
+            {tools().map((tool) => (
               <button
                 key={tool.label}
                 type="button"
@@ -110,11 +112,11 @@ export function MarkdownEditor({ field, value, onChange }: MarkdownEditorProps) 
         className="min-h-48 rounded-t-none border-0 bg-transparent font-mono text-[13px] hover:border-0 focus:ring-0 [font-variant-ligatures:none]"
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        placeholder={'# Heading\n\nWrite with **Markdown**: lists, `code`, [links](https://example.com) …'}
+        placeholder={t('# Heading\n\nWrite with **Markdown**: lists, `code`, [links](https://example.com) …')}
       />
       {mode === 'preview' && (
-        <div className="scrollbar-thin max-h-[26rem] min-h-48 overflow-auto px-3 py-2.5" aria-label="Note preview" role="region">
-          {value.trim() ? <MarkdownView source={value} /> : <p className="text-[13px] text-subtle">Nothing to preview yet.</p>}
+        <div className="scrollbar-thin max-h-[26rem] min-h-48 overflow-auto px-3 py-2.5" aria-label={t('Note preview')} role="region">
+          {value.trim() ? <MarkdownView source={value} /> : <p className="text-[13px] text-subtle">{t('Nothing to preview yet.')}</p>}
         </div>
       )}
     </div>

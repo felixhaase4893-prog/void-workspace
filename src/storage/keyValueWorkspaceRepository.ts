@@ -4,6 +4,7 @@ import { toReadError, toWriteError, type StorageError } from './errors';
 import type { KeyValueStore } from './keyValueStore';
 import { WORKSPACE_MIGRATIONS, migrate, type MigrationMap } from './migrations';
 import type { LoadedWorkspace, WorkspaceRepository } from './workspaceRepository';
+import { t, type MessageKey } from '../i18n/translate';
 
 export const WORKSPACE_STORAGE_KEY = 'void:workspace';
 
@@ -20,7 +21,7 @@ export interface KeyValueWorkspaceRepositoryOptions {
 }
 
 export class KeyValueWorkspaceRepository implements WorkspaceRepository {
-  readonly label: string;
+  private readonly rawLabel: string;
   readonly persistent: boolean;
   private readonly store: KeyValueStore;
   private readonly key: string;
@@ -29,10 +30,15 @@ export class KeyValueWorkspaceRepository implements WorkspaceRepository {
   private readonly events: Pick<Window, 'addEventListener' | 'removeEventListener'> | null;
   private readonly now: () => Date;
 
+  /** Shown in Settings → Storage, in the active language. */
+  get label(): string {
+    return t(this.rawLabel as MessageKey);
+  }
+
   constructor(options: KeyValueWorkspaceRepositoryOptions) {
     this.store = options.store;
     this.key = options.key ?? WORKSPACE_STORAGE_KEY;
-    this.label = options.label ?? 'This device (local storage)';
+    this.rawLabel = options.label ?? 'This device (local storage)';
     this.persistent = options.persistent ?? true;
     this.migrations = options.migrations ?? WORKSPACE_MIGRATIONS;
     this.schemaVersion = options.schemaVersion ?? WORKSPACE_SCHEMA_VERSION;
@@ -63,7 +69,7 @@ export class KeyValueWorkspaceRepository implements WorkspaceRepository {
     try {
       parsed = JSON.parse(raw);
     } catch {
-      return err({ kind: 'corrupt', message: 'Stored data is not valid JSON.' });
+      return err({ kind: 'corrupt', message: t('Stored data is not valid JSON.') });
     }
 
     const migrated = migrate(parsed, this.schemaVersion, this.migrations);
@@ -73,7 +79,7 @@ export class KeyValueWorkspaceRepository implements WorkspaceRepository {
     if (!validated.success) {
       return err({
         kind: 'invalid',
-        message: 'Stored data does not match the expected format.',
+        message: t('Stored data does not match the expected format.'),
         issues: validated.error.issues.slice(0, 10).map((issue) => `${issue.path.join('.') || '(root)'}: ${issue.message}`),
       });
     }
@@ -95,7 +101,7 @@ export class KeyValueWorkspaceRepository implements WorkspaceRepository {
     if (!validated.success) {
       return err({
         kind: 'invalid',
-        message: 'Refusing to save data that does not match the expected format.',
+        message: t('Refusing to save data that does not match the expected format.'),
         issues: validated.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`),
       });
     }

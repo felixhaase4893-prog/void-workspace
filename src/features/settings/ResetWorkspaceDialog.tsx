@@ -4,6 +4,7 @@ import { Alert } from '../../components/ui/Alert';
 import { Button } from '../../components/ui/Button';
 import { Dialog } from '../../components/ui/Dialog';
 import { useWorkspaceActions } from '../../state/workspaceContext';
+import { t } from '../../i18n/translate';
 
 export function ResetWorkspaceDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { resetWorkspace } = useWorkspaceActions();
@@ -27,20 +28,20 @@ export function ResetWorkspaceDialog({ open, onClose }: { open: boolean; onClose
     <Dialog
       open={open}
       onClose={close}
-      title="Delete all data?"
-      description="This removes every project, task, note and snippet from this device. It cannot be undone."
+      title={t('Delete all data?')}
+      description={t('This removes every project, task, note and snippet from this device. It cannot be undone.')}
       footer={
         <>
           <Button variant="ghost" onClick={close} data-autofocus>
-            Cancel
+            {t('Cancel')}
           </Button>
           <Button variant="danger" disabled={pending} onClick={() => void confirm()}>
-            Delete everything
+            {t('Delete everything')}
           </Button>
         </>
       }
     >
-      <p className="text-[13px] text-muted">Export a backup first if you might need this data again.</p>
+      <p className="text-[13px] text-muted">{t('Export a backup first if you might need this data again.')}</p>
       {error && <Alert tone="danger" title={error} className="mt-4" />}
     </Dialog>
   );

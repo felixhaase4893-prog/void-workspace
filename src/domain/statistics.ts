@@ -2,6 +2,7 @@ import { addDays, daysBetween, toDayKey } from './dueDates';
 import { isResolvedBugStatus } from './milestones';
 import type { ProjectStatus, Workspace } from './models';
 import { taskProgress } from './projectOverview';
+import { dateTimeFormat, localized } from '../i18n/translate';
 
 /**
  * Statistics computed from the workspace on every render, so they always
@@ -14,12 +15,12 @@ import { taskProgress } from './projectOverview';
 export const STATS_RANGES = ['7d', '30d', '90d', 'all'] as const;
 export type StatsRange = (typeof STATS_RANGES)[number];
 
-export const STATS_RANGE_LABELS: Record<StatsRange, string> = {
+export const STATS_RANGE_LABELS = localized<StatsRange>({
   '7d': 'Last 7 days',
   '30d': 'Last 30 days',
   '90d': 'Last 90 days',
   all: 'All time',
-};
+});
 
 const RANGE_DAYS: Record<Exclude<StatsRange, 'all'>, number> = { '7d': 7, '30d': 30, '90d': 90 };
 
@@ -47,7 +48,7 @@ export interface ProjectStat {
 
 export interface Statistics {
   range: StatsRange;
-  /** First and last day of the period. `null` for "All time" without any dated items. */
+  /** First and last day of the period. `null` for t('All time') without any dated items. */
   from: string | null;
   to: string;
   tasks: {
@@ -84,8 +85,8 @@ export function dayOf(iso: string): string {
   return toDayKey(new Date(iso));
 }
 
-const dayLabel = new Intl.DateTimeFormat('en', { day: 'numeric', month: 'short', timeZone: 'UTC' });
-const monthLabel = new Intl.DateTimeFormat('en', { month: 'short', year: '2-digit', timeZone: 'UTC' });
+const dayLabel = { format: (date: Date) => dateTimeFormat({ day: 'numeric', month: 'short', timeZone: 'UTC' }).format(date) };
+const monthLabel = { format: (date: Date) => dateTimeFormat({ month: 'short', year: '2-digit', timeZone: 'UTC' }).format(date) };
 
 function utcDate(key: string): Date {
   const [year, month, day] = key.split('-').map(Number) as [number, number, number];

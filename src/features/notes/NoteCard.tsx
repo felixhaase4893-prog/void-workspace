@@ -9,6 +9,7 @@ import { ItemActions } from '../create/ItemActions';
 import { FavoriteButton } from '../favorites/FavoriteButton';
 import { TagList } from '../tags/TagList';
 import { MarkdownView } from './MarkdownView';
+import { t } from '../../i18n/translate';
 
 export function NoteCard({ note, projectName = null, now }: { note: Note; projectName?: string | null; now: Date }) {
   return (
@@ -24,7 +25,7 @@ export function NoteCard({ note, projectName = null, now }: { note: Note; projec
         // Long notes fade out at the bottom; the full note is in the edit dialog's preview.
         <NotePreview content={note.content} />
       ) : (
-        <p className="mt-1 flex-1 text-[13px] text-subtle">Empty note</p>
+        <p className="mt-1 flex-1 text-[13px] text-subtle">{t('Empty note')}</p>
       )}
       <TagList tagIds={note.tagIds} max={5} className="mt-3" />
       <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3 text-xs text-subtle">

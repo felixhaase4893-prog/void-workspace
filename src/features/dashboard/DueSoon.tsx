@@ -7,6 +7,7 @@ import type { Task, Workspace } from '../../domain/models';
 import { getProjectName } from '../../domain/workspace';
 import { cn } from '../../lib/cn';
 import { DueBadge } from '../tasks/DueBadge';
+import { t, tn } from '../../i18n/translate';
 
 /** At most this many tasks per group; the rest is one click away on the Tasks page. */
 const MAX_PER_GROUP = 4;
@@ -15,21 +16,21 @@ const MAX_PER_GROUP = 4;
 export function DueSoon({ workspace, today }: { workspace: Workspace; today: string }) {
   const overview = getDueOverview(workspace, today);
   const groups = [
-    { key: 'overdue', title: 'Overdue', tasks: overview.overdue, tone: 'text-danger' },
-    { key: 'today', title: 'Due today', tasks: overview.today, tone: 'text-warning' },
-    { key: 'upcoming', title: `Next ${UPCOMING_DAYS} days`, tasks: overview.upcoming, tone: 'text-accent-300' },
+    { key: 'overdue', title: t('Overdue'), tasks: overview.overdue, tone: 'text-danger' },
+    { key: 'today', title: t('Due today'), tasks: overview.today, tone: 'text-warning' },
+    { key: 'upcoming', title: t('Next {count} days', { count: UPCOMING_DAYS }), tasks: overview.upcoming, tone: 'text-accent-300' },
   ] as const;
   const total = overview.overdue.length + overview.today.length + overview.upcoming.length;
 
   return (
     <Card>
       <CardHeader
-        title="Due soon"
-        description={total === 0 ? undefined : `${total} open ${total === 1 ? 'task' : 'tasks'} with a due date`}
+        title={t('Due soon')}
+        description={total === 0 ? undefined : tn('{count} open task with a due date|{count} open tasks with a due date', total)}
         action={
           total > 0 ? (
             <Link to="/tasks" className="flex items-center gap-1 rounded text-xs text-muted hover:text-fg">
-              All tasks <ArrowRight className="size-3.5" aria-hidden="true" />
+              {t('All tasks')} <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
           ) : undefined
         }
@@ -37,7 +38,7 @@ export function DueSoon({ workspace, today }: { workspace: Workspace; today: str
       {total === 0 ? (
         <p className="flex items-center gap-2 px-5 py-5 text-[13px] text-muted">
           <CalendarCheck2 className="size-4 shrink-0 text-subtle" aria-hidden="true" />
-          Nothing overdue or due in the next {UPCOMING_DAYS} days.
+          {t('Nothing overdue or due in the next {count} days.', { count: UPCOMING_DAYS })}
         </p>
       ) : (
         <div className="divide-y divide-line">
@@ -53,7 +54,7 @@ export function DueSoon({ workspace, today }: { workspace: Workspace; today: str
                     <DueTask key={task.id} task={task} projectName={getProjectName(workspace, task.projectId)} today={today} />
                   ))}
                 </ul>
-                {group.tasks.length > MAX_PER_GROUP && <p className="mt-1 text-xs text-subtle">and {group.tasks.length - MAX_PER_GROUP} more</p>}
+                {group.tasks.length > MAX_PER_GROUP && <p className="mt-1 text-xs text-subtle">{t('and {count} more', { count: group.tasks.length - MAX_PER_GROUP })}</p>}
               </section>
             ),
           )}

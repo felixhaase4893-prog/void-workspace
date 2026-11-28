@@ -1,6 +1,6 @@
 # PC Optimizer – Phases A to C (Safe Optimization Preview)
 
-As of 2026-11-28. Read-only scan, preview, selection, validation, confirmation and dry run. **No system changes are made.** The optimizer UI, its texts and this document are in English, like the rest of VOID.
+As of 2026-11-28. Read-only scan, preview, selection, validation, confirmation and dry run. **No system changes are made.** The scan engine writes English; since 4.5 the page shows its texts in the chosen app language (English, Español, 简体中文, Deutsch). This document is in English.
 
 ## Architecture
 

@@ -1,6 +1,7 @@
 import { useId, type InputHTMLAttributes, type ReactNode, type Ref, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 
 import { cn } from '../../lib/cn';
+import { t } from '../../i18n/translate';
 
 const control =
   'w-full rounded-lg border border-line bg-canvas px-3 text-sm text-fg [&_option]:bg-surface [&_option]:text-fg placeholder:text-subtle transition-colors hover:border-line-strong focus:border-accent-400 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-accent-500/25 aria-[invalid=true]:border-danger/70';
@@ -30,7 +31,7 @@ export function Field({ label, error, hint, optional, children }: FieldProps) {
     <div className="space-y-1.5">
       <label htmlFor={id} className="flex items-baseline justify-between text-[13px] font-medium text-fg">
         {label}
-        {optional && <span className="text-xs font-normal text-subtle">Optional</span>}
+        {optional && <span className="text-xs font-normal text-subtle">{t('Optional')}</span>}
       </label>
       {children({ id, 'aria-invalid': Boolean(error), 'aria-describedby': describedBy })}
       {hint && !error && (

@@ -5,11 +5,12 @@ import { Badge, type BadgeTone } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardHeader } from '../../components/ui/Card';
 import type { PerformanceFinding, ResourceKind, ResourceSummary, ResourceUser } from '../../domain/optimizer/models';
-import { formatBytes } from '../../domain/optimizer/sizes';
+import { formatBytes } from './format';
 import { cn } from '../../lib/cn';
 import { OpenTargetButton } from './OpenTargetButton';
+import { formatNumber, type MessageKey, t, tn, translateText } from '../../i18n/translate';
 
-const SEVERITY: Record<PerformanceFinding['severity'], { label: string; tone: BadgeTone }> = {
+const SEVERITY: Record<PerformanceFinding['severity'], { label: MessageKey; tone: BadgeTone }> = {
   high: { label: 'High', tone: 'danger' },
   medium: { label: 'Medium', tone: 'warning' },
   low: { label: 'Low', tone: 'neutral' },
@@ -17,7 +18,7 @@ const SEVERITY: Record<PerformanceFinding['severity'], { label: string; tone: Ba
 
 const MAIN_LABELS: Record<ResourceKind, string> = { cpu: 'CPU', gpu: 'GPU', memory: 'RAM', network: 'network/I/O' };
 
-const percent = (value: number | null) => (value === null ? '–' : `${value.toLocaleString('en-US', { maximumFractionDigits: 1 })} %`);
+const percent = (value: number | null) => (value === null ? '–' : `${formatNumber(value, { maximumFractionDigits: 1 })} %`);
 const rate = (value: number | null) => (value === null ? '–' : `${formatBytes(value)}/s`);
 
 /** Deep scan: every performance hog with cause, impact and how to fix it yourself. */
@@ -27,30 +28,30 @@ export function FindingsSection({ findings, onJump }: { findings: readonly Perfo
       <div className="flex flex-wrap items-center gap-2">
         <Flame className="size-4 text-warning" aria-hidden="true" />
         <h2 id="optimizer-findings" className="text-sm font-semibold text-fg">
-          Performance hogs ({findings.length})
+          {t('Performance hogs ({count})', { count: findings.length })}
         </h2>
-        <span className="text-xs text-muted">What slows your PC down, why, and how to fix it yourself.</span>
+        <span className="text-xs text-muted">{t('What slows your PC down, why, and how to fix it yourself.')}</span>
       </div>
       {findings.length === 0 ? (
-        <Card className="px-5 py-4 text-[13px] text-muted">No noticeable performance hogs found. Your PC is running relaxed right now.</Card>
+        <Card className="px-5 py-4 text-[13px] text-muted">{t('No noticeable performance hogs found. Your PC is running relaxed right now.')}</Card>
       ) : (
         <ul className="space-y-2">
           {findings.map((finding) => (
             <li key={finding.id}>
               <Card className="px-4 py-3">
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone={SEVERITY[finding.severity].tone}>{SEVERITY[finding.severity].label}</Badge>
-                  <h3 className="text-[13px] font-medium [overflow-wrap:anywhere] text-fg">{finding.title}</h3>
-                  <span className="text-xs text-muted">{finding.impact}</span>
+                  <Badge tone={SEVERITY[finding.severity].tone}>{t(SEVERITY[finding.severity].label)}</Badge>
+                  <h3 className="text-[13px] font-medium [overflow-wrap:anywhere] text-fg">{translateText(finding.title)}</h3>
+                  <span className="text-xs text-muted">{translateText(finding.impact)}</span>
                 </div>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted">
-                  <span className="font-medium text-fg">Cause: </span>
-                  {finding.cause}
+                  <span className="font-medium text-fg">{t('Cause:')} </span>
+                  {translateText(finding.cause)}
                 </p>
-                <p className="mt-2 text-xs font-medium text-fg">How to fix it:</p>
+                <p className="mt-2 text-xs font-medium text-fg">{t('How to fix it:')}</p>
                 <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-xs leading-relaxed text-muted">
                   {finding.fixSteps.map((step) => (
-                    <li key={step}>{step}</li>
+                    <li key={step}>{translateText(step)}</li>
                   ))}
                 </ol>
                 {(finding.openTarget || finding.recommendationId) && (
@@ -58,7 +59,7 @@ export function FindingsSection({ findings, onJump }: { findings: readonly Perfo
                     {finding.openTarget && <OpenTargetButton target={finding.openTarget} />}
                     {finding.recommendationId && (
                       <Button size="sm" variant="ghost" icon={<ArrowDownToLine />} onClick={() => onJump(finding.recommendationId ?? '')}>
-                        Go to action
+                        {t('Go to action')}
                       </Button>
                     )}
                   </div>
@@ -81,14 +82,14 @@ export function ResourceSummarySection({ resources, onJump }: { resources: Resou
       <div className="flex flex-wrap items-center gap-2">
         <Trophy className="size-4 text-accent-300" aria-hidden="true" />
         <h2 id="optimizer-resources" className="text-sm font-semibold text-fg">
-          What uses the most performance?
+          {t('What uses the most performance?')}
         </h2>
-        <span className="text-xs text-muted">Snapshot over about 1.5 seconds, processes grouped per program.</span>
+        <span className="text-xs text-muted">{t('Snapshot over about 1.5 seconds, processes grouped per program.')}</span>
       </div>
 
       {resources.overall.length > 0 && (
         <Card>
-          <CardHeader title="Overall ranking" description="CPU, GPU, RAM and I/O rated together" as="h3" />
+          <CardHeader title={t('Overall ranking')} description={t('CPU, GPU, RAM and I/O rated together')} as="h3" />
           <ol className="divide-y divide-line">
             {resources.overall.map((user, index) => (
               <li key={user.name} className="flex flex-wrap items-center gap-3 px-5 py-2.5">
@@ -96,8 +97,8 @@ export function ResourceSummarySection({ resources, onJump }: { resources: Resou
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[13px] font-medium [overflow-wrap:anywhere] text-fg">{user.name}</span>
-                    {user.processCount > 1 && <span className="text-xs text-subtle">{user.processCount} processes</span>}
-                    <Badge tone="accent">mostly {MAIN_LABELS[user.main]}</Badge>
+                    {user.processCount > 1 && <span className="text-xs text-subtle">{tn('{count} process|{count} processes', user.processCount)}</span>}
+                    <Badge tone="accent">{t('mostly {resource}', { resource: translateText(MAIN_LABELS[user.main]) })}</Badge>
                   </div>
                   <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-raised" aria-hidden="true">
                     <div className="h-full rounded-full bg-accent-500" style={{ width: `${Math.max(4, Math.round((user.score / maxScore) * 100))}%` }} />
@@ -109,7 +110,7 @@ export function ResourceSummarySection({ resources, onJump }: { resources: Resou
                 {user.recommendationId && (
                   <div className="w-full pl-6 sm:w-auto sm:pl-0">
                     <Button size="sm" variant="ghost" icon={<ArrowDownToLine />} onClick={() => onJump(user.recommendationId ?? '')}>
-                      Go to action
+                      {t('Go to action')}
                     </Button>
                   </div>
                 )}
@@ -120,14 +121,14 @@ export function ResourceSummarySection({ resources, onJump }: { resources: Resou
       )}
 
       <div className="grid gap-3 lg:grid-cols-2">
-        <ResourceCard icon={<Cpu />} title="CPU" summary={cpu.totalPercent === null ? `${cpu.cores} cores` : `${percent(cpu.totalPercent)} total · ${cpu.cores} cores`} users={cpu.top} value={(user) => percent(user.cpuPercent)} empty="No measurable CPU load." />
+        <ResourceCard icon={<Cpu />} title="CPU" summary={cpu.totalPercent === null ? t('{cores} cores', { cores: cpu.cores }) : t('{percent} total · {cores} cores', { percent: percent(cpu.totalPercent), cores: cpu.cores })} users={cpu.top} value={(user) => percent(user.cpuPercent)} empty={t('No measurable CPU load.')} />
         <ResourceCard
           icon={<MonitorPlay />}
           title="GPU"
-          summary={gpu.measured ? 'Load of the graphics engines' : 'Not measurable (no GPU counter)'}
+          summary={gpu.measured ? t('Load of the graphics engines') : t('Not measurable (no GPU counter)')}
           users={gpu.top}
           value={(user) => percent(user.gpuPercent)}
-          empty={gpu.measured ? 'No measurable GPU load.' : 'Windows reports no per-program values for this graphics card.'}
+          empty={gpu.measured ? t('No measurable GPU load.') : t('Windows reports no per-program values for this graphics card.')}
         />
         <ResourceCard
           icon={<MemoryStick />}
@@ -135,16 +136,16 @@ export function ResourceSummarySection({ resources, onJump }: { resources: Resou
           summary={`${formatBytes(memory.usedBytes)} of ${formatBytes(memory.totalBytes)} in use`}
           users={memory.top}
           value={(user) => formatBytes(user.memoryBytes)}
-          empty="No data."
+          empty={t('No data.')}
         />
         <ResourceCard
           icon={<Network />}
-          title="Network"
-          summary={network.receivedBytesPerSec === null ? 'Totals not measurable' : `↓ ${rate(network.receivedBytesPerSec)} · ↑ ${rate(network.sentBytesPerSec)} total`}
+          title={t('Network')}
+          summary={network.receivedBytesPerSec === null ? t('Totals not measurable') : `↓ ${rate(network.receivedBytesPerSec)} · ↑ ${rate(network.sentBytesPerSec)} total`}
           users={network.top}
           value={(user) => `${rate(user.ioBytesPerSec)}${user.connections ? ` · ${user.connections} conn.` : ''}`}
-          empty="No measurable network or I/O load."
-          note="Windows does not measure network traffic per program without admin rights. So per program, VOID shows the I/O rate (disk + network) and the open TCP connections."
+          empty={t('No measurable network or I/O load.')}
+          note={t('Windows does not measure network traffic per program without admin rights. So per program, VOID shows the I/O rate (disk + network) and the open TCP connections.')}
         />
       </div>
     </section>

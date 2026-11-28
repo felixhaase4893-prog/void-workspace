@@ -1,5 +1,6 @@
 import { Field, Select } from '../../components/ui/Field';
 import { useWorkspace } from '../../state/workspaceContext';
+import { t } from '../../i18n/translate';
 
 interface ProjectReferenceSelectProps {
   value: string;
@@ -12,10 +13,10 @@ export function ProjectReferenceSelect({ value, error, onChange }: ProjectRefere
   // Archived projects are hidden, unless the item being edited already belongs to one.
   const choices = projects.filter((project) => project.status !== 'archived' || project.id === value);
   return (
-    <Field label="Project" optional error={error}>
+    <Field label={t('Project')} optional error={error}>
       {(field) => (
         <Select {...field} value={value} onChange={(event) => onChange(event.target.value)}>
-          <option value="">No project</option>
+          <option value="">{t('No project')}</option>
           {choices.map((project) => (
             <option key={project.id} value={project.id}>
               {project.name}

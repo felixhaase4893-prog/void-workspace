@@ -9,6 +9,7 @@ import type { Workspace } from '../../domain/models';
 import { taskProgress } from '../../domain/projectOverview';
 import { getProjectSummaries } from '../../domain/workspace';
 import { useEntityDialogs } from '../create/entityDialogContext';
+import { t } from '../../i18n/translate';
 
 const MAX_PROJECTS = 5;
 
@@ -19,21 +20,21 @@ export function ProjectsOverview({ workspace }: { workspace: Workspace }) {
   return (
     <Card>
       <CardHeader
-        title="Projects"
-        description={summaries.length > 0 ? 'Most recently updated first' : undefined}
+        title={t('Projects')}
+        description={summaries.length > 0 ? t('Most recently updated first') : undefined}
         action={
           summaries.length > 0 ? (
             <Link to="/projects" className="flex items-center gap-1 rounded text-xs text-muted hover:text-fg">
-              View all <ArrowRight className="size-3.5" aria-hidden="true" />
+              {t('View all')} <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
           ) : undefined
         }
       />
       {summaries.length === 0 ? (
         <div className="flex flex-col items-start gap-3 px-5 py-6">
-          <p className="text-[13px] text-muted">No projects yet. Projects group your tasks and notes.</p>
+          <p className="text-[13px] text-muted">{t('No projects yet. Projects group your tasks and notes.')}</p>
           <Button size="sm" icon={<FolderKanban />} onClick={() => openCreateDialog('project')}>
-            Create a project
+            {t('Create a project')}
           </Button>
         </div>
       ) : (
@@ -49,10 +50,10 @@ export function ProjectsOverview({ workspace }: { workspace: Workspace }) {
                       {project.name}
                     </Link>
                     <Badge>{PROJECT_KIND_LABELS[project.kind]}</Badge>
-                    {project.status === 'paused' && <Badge tone="warning">Paused</Badge>}
+                    {project.status === 'paused' && <Badge tone="warning">{t('Paused')}</Badge>}
                   </div>
                   <p className="mt-0.5 text-xs text-subtle">
-                    {totalTasks === 0 ? 'No tasks yet' : `${openTasks} open · ${done} done`}
+                    {totalTasks === 0 ? t('No tasks yet') : t('{open} open · {done} done', { open: openTasks, done })}
                   </p>
                 </div>
                 {totalTasks > 0 && (

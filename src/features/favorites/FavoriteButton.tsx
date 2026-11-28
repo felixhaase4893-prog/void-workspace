@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/Button';
 import type { EntityType } from '../../domain/models';
 import { cn } from '../../lib/cn';
 import { useWorkspaceActions } from '../../state/workspaceContext';
+import { t } from '../../i18n/translate';
 
 interface FavoriteButtonProps {
   type: EntityType;
@@ -21,7 +22,7 @@ interface FavoriteButtonProps {
  */
 export function FavoriteButton({ type, id, title, favorite, className }: FavoriteButtonProps) {
   const { setFavorite } = useWorkspaceActions();
-  const label = favorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`;
+  const label = favorite ? t('Remove {title} from favorites', { title }) : t('Add {title} to favorites', { title });
 
   const toggle = (event: MouseEvent<HTMLButtonElement>) => {
     // Cards may be links or sit inside clickable areas; a star click must only toggle the star.
@@ -35,7 +36,7 @@ export function FavoriteButton({ type, id, title, favorite, className }: Favorit
       type="button"
       aria-pressed={favorite}
       aria-label={label}
-      title={favorite ? 'Remove from favorites' : 'Add to favorites'}
+      title={favorite ? t('Remove from favorites') : t('Add to favorites')}
       onClick={toggle}
       className={cn(
         'inline-flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors hover:bg-raised focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none [&_svg]:size-4',
@@ -54,12 +55,12 @@ export function FavoriteToggle({ type, id, title, favorite, className }: Favorit
   return (
     <Button
       aria-pressed={favorite}
-      aria-label={favorite ? `Remove ${title} from favorites` : `Add ${title} to favorites`}
+      aria-label={favorite ? t('Remove {title} from favorites', { title }) : t('Add {title} to favorites', { title })}
       icon={<Star fill={favorite ? 'currentColor' : 'none'} />}
       className={cn(favorite && 'text-accent-200', className)}
       onClick={() => void setFavorite(type, id, !favorite)}
     >
-      {favorite ? 'Favorite' : 'Add to favorites'}
+      {favorite ? t('Favorite') : t('Add to favorites')}
     </Button>
   );
 }

@@ -17,6 +17,7 @@ import { useListFilters } from '../filters/listFiltersContext';
 import { TagList } from '../tags/TagList';
 import { useEntityDialogs } from '../create/entityDialogContext';
 import { PROJECT_STATUS_TONES } from './projectStatusTones';
+import { t, tn } from '../../i18n/translate';
 
 export function ProjectsPage() {
   const { projects, tasks } = useWorkspace();
@@ -26,16 +27,16 @@ export function ProjectsPage() {
 
   const newButton = (
     <Button variant="primary" icon={<Plus />} onClick={() => openCreateDialog('project')}>
-      New project
+      {t('New project')}
     </Button>
   );
 
   return (
     <>
-      <PageHeader title="Projects" description="Everything you are building, from side projects to studio titles." actions={projects.length > 0 ? newButton : undefined} />
+      <PageHeader title={t('Projects')} description={t('Everything you are building, from side projects to studio titles.')} actions={projects.length > 0 ? newButton : undefined} />
       {projects.length === 0 ? (
         <Card>
-          <EmptyState icon={FolderKanban} title="No projects yet" description="Create your first project to group the tasks, notes and snippets that belong together." action={newButton} quickAddHint />
+          <EmptyState icon={FolderKanban} title={t('No projects yet')} description={t('Create your first project to group the tasks, notes and snippets that belong together.')} action={newButton} quickAddHint />
         </Card>
       ) : (
         <>
@@ -67,7 +68,7 @@ export function ProjectsPage() {
                         </div>
                       </div>
                       <p className="mt-2 line-clamp-3 flex-1 text-[13px] leading-relaxed [overflow-wrap:anywhere] text-muted">
-                        {project.description || <span className="text-subtle">No description</span>}
+                        {project.description || <span className="text-subtle">{t('No description')}</span>}
                       </p>
                       {project.technologies.length > 0 && (
                         <p className="mt-3 truncate font-mono text-[11px] text-subtle">{project.technologies.join(' · ')}</p>
@@ -76,7 +77,7 @@ export function ProjectsPage() {
                       <div className="mt-4 flex items-center justify-between gap-2 border-t border-line pt-3 text-xs text-subtle">
                         <Badge>{PROJECT_KIND_LABELS[project.kind]}</Badge>
                         <span className="min-w-0 flex-1 truncate text-right">
-                          {open} open {open === 1 ? 'task' : 'tasks'} · {formatRelativeTime(project.updatedAt, now)}
+                          {tn('{count} open task · {time}|{count} open tasks · {time}', open, { time: formatRelativeTime(project.updatedAt, now) })}
                         </span>
                         <ItemActions type="project" id={project.id} title={project.name} className="relative z-10 -my-1.5 -mr-2" />
                       </div>

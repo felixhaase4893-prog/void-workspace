@@ -11,6 +11,7 @@ import type { Finding } from '../../domain/code/findings';
 import { MAX_CODE_LINES, type CodeLanguageId } from '../../domain/code/languages';
 import { loadEditorLanguage } from './editorLanguages';
 import { voidEditorTheme } from './editorTheme';
+import { t, translateText } from '../../i18n/translate';
 
 export interface CodeEditorHandle {
   /** Moves the cursor to a line (and column), scrolls it into the middle and focuses the editor. */
@@ -38,7 +39,7 @@ function toDiagnostics(state: EditorState, findings: readonly Finding[]): Diagno
     const from = Math.min(line.from + Math.max(0, item.column - 1), line.to);
     // Mark the word at the position (or one character), so the squiggle sits where the problem is.
     const word = /^[\w$]+/.exec(state.doc.sliceString(from, line.to))?.[0].length ?? 1;
-    diagnostics.push({ from, to: Math.min(line.to, from + Math.max(1, word)), severity: SEVERITY[item.category], message: `${item.title}: ${item.description}`, source: 'VOID' });
+    diagnostics.push({ from, to: Math.min(line.to, from + Math.max(1, word)), severity: SEVERITY[item.category], message: `${translateText(item.title)}: ${translateText(item.description)}`, source: 'VOID' });
   }
   return diagnostics;
 }
@@ -82,12 +83,12 @@ export const CodeEditor = forwardRef<CodeEditorHandle, CodeEditorProps>(function
         indentUnit.of('  '),
         EditorState.tabSize.of(2),
         keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...historyKeymap, ...searchKeymap, indentWithTab]),
-        placeholder('Paste or type code here…'),
+        placeholder(t('Paste or type code here…')),
         lineLimit,
         languageCompartment.current.of([]),
         wrapCompartment.current.of([]),
         voidEditorTheme,
-        EditorView.contentAttributes.of({ 'aria-label': 'Code editor', 'aria-multiline': 'true' }),
+        EditorView.contentAttributes.of({ 'aria-label': t('Code editor'), 'aria-multiline': 'true' }),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) callbacks.current.onChange(update.state.doc.toString());
         }),
